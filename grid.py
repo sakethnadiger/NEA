@@ -14,9 +14,9 @@ class Grid:
         
             
     # method to insert weight or obstacle into array
-    def insertValue(self, cellValue, rowIndex, colIndex):
-        if self.gridArray[rowIndex][colIndex] not in ["S", "E"] and cellValue in self.weightChoices:
-            self.gridArray[rowIndex][colIndex] = cellValue
+    def insertValue(self, cellValue, x, y):
+        if self.gridArray[y][x] not in ["S", "E"] and cellValue in self.weightChoices:
+            self.gridArray[y][x] = cellValue
     
     # generate a randomly weighted grid
     def randomWeightedGrid(self):
@@ -43,7 +43,11 @@ class Grid:
             for n in neighbours:
                 val = self.gridArray[n[1]][n[0]]
                 if val != "#":
-                    edges[n] = val
+                    if val == 0 or val == "S" or val == "E":
+                        # weight should be 1, not 0 or "S" or "E"
+                        edges[n] = 1
+                    else:
+                        edges[n] = val
             return edges
         
         adjacency = {}
@@ -92,6 +96,3 @@ class Grid:
         
         return adjacency
                     
-test = Grid(5, 5)
-test.adjacencyList()
-#test.outputGrid()
