@@ -96,3 +96,10 @@ class Grid:
         
         return adjacency
                     
+# test = Grid(5, 5)
+
+# test.randomWeightedGrid()
+# A = test.adjacencyList()
+# for k in A:
+#     print(k, A[k])
+# test.outputGrid()
