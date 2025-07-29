@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 # backend grid class --iteration 1--
 class Grid:
@@ -12,7 +13,16 @@ class Grid:
         # place start and end cells in top left and bottom right cells respectively
         self.gridArray[0][0], self.gridArray[-1][-1] = "S", "E"
         
-            
+    def getStart(self):
+        npArray = np.array(self.gridArray)
+        startPos = tuple(np.argwhere(npArray == "S")[0])
+        return startPos
+    
+    def getEnd(self):
+        npArray = np.array(self.gridArray)
+        endPos = tuple(np.argwhere(npArray == "E")[0])
+        return endPos
+    
     # method to insert weight or obstacle into array
     def insertValue(self, cellValue, x, y):
         if self.gridArray[y][x] not in ["S", "E"] and cellValue in self.weightChoices:
@@ -79,17 +89,17 @@ class Grid:
                     elif y == len(self.gridArray) - 1:
                         neighbours = [(x-1, y), (x+1, y), (x, y-1)]
                     
-                    # left column - add above, right and below
+                    # left column - add right, above and below
                     elif x == 0:
-                        neighbours = [(x, y-1), (x+1, y), (x, y+1)]
+                        neighbours = [(x+1, y), (x, y-1), (x, y+1)]
                     
-                    # right column - add above, left and below
+                    # right column - add left, above and below
                     elif x == len(row) - 1:
-                        neighbours = [(x, y-1), (x-1, y), (x, y+1)]
+                        neighbours = [(x-1, y),(x, y-1), (x, y+1)]
                     
-                    # normal conditions - above, below, left, right
+                    # normal conditions - left, right, above, below
                     else:
-                        neighbours = [(x, y-1), (x, y+1), (x-1, y), (x+1, y)]
+                        neighbours = [(x-1, y), (x+1, y), (x, y-1), (x, y+1)]
                     
                     # add map of weighted neighbours to adjacency list
                     adjacency[(x, y)] = validEdges(neighbours)
@@ -97,6 +107,7 @@ class Grid:
         return adjacency
                     
 # test = Grid(5, 5)
+
 
 # test.randomWeightedGrid()
 # A = test.adjacencyList()
