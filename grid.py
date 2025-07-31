@@ -16,12 +16,12 @@ class Grid:
     def getStart(self):
         npArray = np.array(self.gridArray)
         startPos = tuple(np.argwhere(npArray == "S")[0])
-        return startPos
+        return (startPos[1], startPos[0])
     
     def getEnd(self):
         npArray = np.array(self.gridArray)
         endPos = tuple(np.argwhere(npArray == "E")[0])
-        return endPos
+        return (endPos[1], endPos[0])
     
     # method to insert weight or obstacle into array
     def insertValue(self, cellValue, x, y):
