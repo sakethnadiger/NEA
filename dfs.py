@@ -1,5 +1,4 @@
 import grid
-from runtime import runtime
 
 # Depth-First Search Subroutine
 # parameters adjacency list A, start node (tuple) and end node (tuple)
@@ -15,8 +14,7 @@ def DFS(A, start: tuple, end: tuple): # --> returns ordered discovered cells and
     previous_node = {}
     discovered = set()
     uiDiscovered = []
-    stack = []
-    stack.append(start)
+    stack = [start]
     while stack:
         node = stack.pop()
         if node == end:
