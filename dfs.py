@@ -1,8 +1,10 @@
 import grid
+import time
 
 # Depth-First Search Subroutine
 # parameters adjacency list A, start node (tuple) and end node (tuple)
 def DFS(A, start: tuple, end: tuple): # --> returns ordered discovered cells and path
+    startTime = time.perf_counter()
     
     def retrace(prev_node, start, end):
         path = [end]
@@ -19,7 +21,9 @@ def DFS(A, start: tuple, end: tuple): # --> returns ordered discovered cells and
         node = stack.pop()
         if node == end:
             path = retrace(previous_node, start, end)
-            return uiDiscovered, path
+            endTime = time.perf_counter()
+            runtime = (endTime - startTime)*10**3
+            return uiDiscovered, path, round(runtime, 4)
         if node not in discovered:
             discovered.add(node)
             uiDiscovered.append(node)
@@ -28,13 +32,14 @@ def DFS(A, start: tuple, end: tuple): # --> returns ordered discovered cells and
                     previous_node[neighbour] = node
                     stack.append(neighbour)
     
+    
+    endTime = time.perf_counter()
+    runtime = (endTime - startTime)*10**3
+    return uiDiscovered, [], round(runtime, 4)
 
-    return uiDiscovered, []
 
-test = grid.Grid(4, 5)
+test = grid.Grid(10, 10)
 
-A = test.adjacencyList()
+cells, path, t = DFS(test.adjacencyList(), test.getStart(), test.getEnd())
 
-uiDiscovered, p = DFS(A, test.getStart(), test.getEnd())
-
-print(p)
+test.displayPath(path)

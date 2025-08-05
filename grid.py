@@ -13,7 +13,8 @@ class Grid:
         
         # place start and end cells in top left and bottom right cells respectively
         self.gridArray[0][0], self.gridArray[-1][-1] = "S", "E"
-        
+    
+    
     def getStart(self):
         npArray = np.array(self.gridArray)
         startPos = tuple(np.argwhere(npArray == "S")[0])
@@ -41,15 +42,12 @@ class Grid:
     
     # generate a randomly weighted grid
     def randomWeightedGrid(self):
+        random.seed(41042)
         for i in range(self.rows):
             for j in range(self.columns):
                 if self.gridArray[i][j] not in ["S", "E"]:
                     self.gridArray[i][j] = random.choice(self.weightChoices)
-    
-    # output grid array on terminal
-    def outputGrid(self):
-        for i in self.gridArray:
-            print(" ".join(str(j) for j in i))
+
     
     # currently only created a method for resetting grid.
     # option for resetting path will come after algorithm implementation
@@ -174,6 +172,7 @@ class Grid:
         self.insertValue("#", self.columns - 1, self.rows - 1)
         return self.adjacencyList(maze=True)
     
+    # DFS for maze generation
     def generateMaze(self):
         A = self.createWalls()
         start = self.getStart()
@@ -207,19 +206,30 @@ class Grid:
         return uiDiscovered
     
     # mainly to output a clearly contrasted grid for a generated maze
-    def debugging(self):
-        newarray = [[0 for col in range(self.columns)] for row in range(self.rows)]
+    def outputGrid(self):
+        newArray = [[0 for col in range(self.columns)] for row in range(self.rows)]
         for y, row in enumerate(self.gridArray):
             for x, val in enumerate(row):
                 if val == 0:
-                    newarray[y][x] = " "
+                    newArray[y][x] = "."
                 else:
-                    newarray[y][x] = val
-        for i in newarray:
+                    newArray[y][x] = val
+        for i in newArray:
+            print(" ".join(str(j) for j in i))
+    
+    # displays grid with path without amending gridArray
+    def displayPath(self, path):
+        tempArray = [x[:] for x in self.gridArray]
+        for y, row in enumerate(self.gridArray):
+            for x, val in enumerate(row):
+                if val == 0:
+                    tempArray[y][x] = "."
+                else:
+                    tempArray[y][x] = val
+                if (x, y) in path and val not in ["S", "E"]:
+                    tempArray[y][x] = "@"
+                
+        
+        for i in tempArray:
             print(" ".join(str(j) for j in i))
             
-test = Grid(31, 61)
-
-cells = test.generateMaze()
-
-test.debugging()

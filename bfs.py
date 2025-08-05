@@ -1,11 +1,11 @@
 import grid
 from collections import deque
-
+import time
 
 # Breadth-First Search Subroutine
 # parameters adjacency list A, start node (tuple) and end node (tuple)
 def BFS(A, start: tuple, end: tuple): # --> returns ordered discovered cells and path
-    
+    startTime = time.perf_counter()
     def retrace(prev_node, start, end):
         path = [end]
         while path[-1] != start:
@@ -23,24 +23,26 @@ def BFS(A, start: tuple, end: tuple): # --> returns ordered discovered cells and
         node = queue.popleft()
         if node == end:
             path = retrace(previous_node, start, end)
-            return uiDiscovered, path
+            endTime = time.perf_counter()
+            runtime = (endTime - startTime)*10**3
+            return uiDiscovered, path, round(runtime, 4)
         for neighbour in A[node]:
             if neighbour not in discovered:
                 discovered.add(neighbour)
                 uiDiscovered.append(neighbour)
                 previous_node[neighbour] = node
                 queue.append(neighbour)
-    return uiDiscovered, []
+                
+    endTime = time.perf_counter()
+    runtime = (endTime - startTime)*10**3
+    return uiDiscovered, [], round(runtime, 4)
 
-test = grid.Grid(5, 4)
+test = grid.Grid(10, 10)
+obstacles = [(1, 0), (5, 6), (3, 4), (4, 6), (5, 8), (9, 2), (6, 3)]
 
-test.outputGrid()
+for o in obstacles:
+    test.insertValue("#", o[0], o[1])
 
-A = test.adjacencyList()
+cells, path, t = BFS(test.adjacencyList(), test.getStart(), test.getEnd())
 
-print(test.getStart(), test.getEnd())
-
-uiDiscovered, path = BFS(A, test.getStart(), test.getEnd())
-
-print(len(uiDiscovered))
-print(path)
+test.displayPath(path)
