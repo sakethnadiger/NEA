@@ -25,7 +25,10 @@ def normalisedToScreen(input_x, input_y, obj_width, obj_height):
     return true_x, true_y
 
 class Label():
-    def __init__(self, colour, text, textSize, textColour):
+    def __init__(self, width, height, colour, text, textSize, textColour, autoSize=False):
+        self.autoSize = autoSize
+        self.width = width
+        self.height = height
         self.colour = colour
         self.text = text
         self.textSize = textSize
@@ -34,22 +37,35 @@ class Label():
     
     # (x, y) is the position that the user wants to place the CENTRE of the label
     def draw(self, surface, x, y):
-        # Render the text as an image
-        self.img = self.font.render(self.text, True, self.textColour)
+        lines = self.text.split("\n")
+        textImgs = []
+        imgWidths = []
+        imgHeights = []
+        for line in lines:
+            render = self.font.render(line, True, self.textColour)
+            textImgs.append(render)
+            imgWidths.append(render.get_width())
+            imgHeights.append(render.get_height())
         # Auto set the width and height of the box around the text. May need to add padding to this.
-        self.width = self.img.get_width()
-        self.height = self.img.get_height()
+        if self.autoSize:
+            self.width = max(imgWidths)
+            self.height = sum(imgHeights)
         true_x, true_y = normalisedToScreen(x, y, self.width, self.height)
         self.box = pygame.Rect(true_x, true_y, self.width, self.height)
         pygame.draw.rect(surface, self.colour, self.box)
-        surface.blit(self.img, (true_x, true_y))
+        
+        heightCounter = true_y
+        for l, line in enumerate(textImgs):
+            height = imgHeights[l]
+            surface.blit(line, (true_x, heightCounter))
+            heightCounter += height
     
     def updateText(self, newText):
         self.text = newText
 
 class Button(Label):
-    def __init__(self, colour, text, textSize, textColour, identification):
-        super().__init__(colour, text, textSize, textColour)
+    def __init__(self, width, height, colour, text, textSize, textColour, identification, autoSize=False):
+        super().__init__(width, height, colour, text, textSize, textColour, autoSize=False)
         self.identification = identification
         self.originalColour = colour
         self.pressed = False
@@ -58,18 +74,30 @@ class Button(Label):
         return self.identification
     
     def draw(self, surface, x, y, normalised=True):
-        # Render the text as an image
-        self.img = self.font.render(self.text, True, self.textColour)
+        lines = self.text.split("\n")
+        textImgs = []
+        imgWidths = []
+        imgHeights = []
+        for line in lines:
+            render = self.font.render(line, True, self.textColour)
+            textImgs.append(render)
+            imgWidths.append(render.get_width())
+            imgHeights.append(render.get_height())
         # Auto set the width and height of the box around the text. May need to add padding to this.
-        self.width = self.img.get_width()
-        self.height = self.img.get_height()
+        if self.autoSize:
+            self.width = max(imgWidths)
+            self.height = sum(imgHeights)
         if normalised:
             true_x, true_y = normalisedToScreen(x, y, self.width, self.height)
         else:
             true_x, true_y = x, y
         self.box = pygame.Rect(true_x, true_y, self.width, self.height)
         pygame.draw.rect(surface, self.colour, self.box)
-        surface.blit(self.img, (true_x, true_y))
+        heightCounter = true_y
+        for l, line in enumerate(textImgs):
+            height = imgHeights[l]
+            surface.blit(line, (true_x, heightCounter))
+            heightCounter += height
     
     # handle a click and hover
     def eventOccurence(self, event):
@@ -87,7 +115,83 @@ class Button(Label):
     
     def updateText(self, newText):
         self.text = newText
+
+class Cyclic():
+    def __init__(self, width, height, colour, textSize, textColour, states: dict, identification, autoSize=False):
+        self.autoSize = autoSize
+        self.width = width
+        self.height = height
+        self.colour = colour
+        self.textSize = textSize
+        self.textColour = textColour
+        self.identification = identification
+        self.pressed = False
+        self.originalColour = colour
+        self.font = pygame.font.SysFont("ebrima", self.textSize)
+
+        self.states = states
+        self.stateCounter = 0
+        self.stateList = []
+        for state in self.states:
+            self.stateList.append(state)
+            
+    def getId(self):
+        return self.identification
+        
+    # call this right after eventOccurence to obtain current state but before reset
+    def getState(self):
+        return self.stateList[self.stateCounter]
+        
+    def draw(self, surface, x, y, normalised=True):
+        
+        curState = self.stateList[self.stateCounter]
+        self.text = self.states[curState]
+        # Render the text as an image
+        lines = self.text.split("\n")
+        textImgs = []
+        imgWidths = []
+        imgHeights = []
+        for line in lines:
+            render = self.font.render(line, True, self.textColour)
+            textImgs.append(render)
+            imgWidths.append(render.get_width())
+            imgHeights.append(render.get_height())
+        # Auto set the width and height of the box around the text. May need to add padding to this.
+        if self.autoSize:
+            self.width = max(imgWidths)
+            self.height = sum(imgHeights)
+        if normalised:
+            true_x, true_y = normalisedToScreen(x, y, self.width, self.height)
+        else:
+            true_x, true_y = x, y
+        self.box = pygame.Rect(true_x, true_y, self.width, self.height)
+        pygame.draw.rect(surface, self.colour, self.box)
+        heightCounter = true_y
+        for l, line in enumerate(textImgs):
+            height = imgHeights[l]
+            surface.blit(line, (true_x, heightCounter))
+            heightCounter += height
+            
+    # handle a click and hover
+    def eventOccurence(self, event):
+        self.colour = self.originalColour
+        mousePos = pygame.mouse.get_pos()
+        if self.box.collidepoint(mousePos):
+            self.colour = LIGHTBLUE
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not self.pressed:
+                self.pressed = True
+                return True
+                
+    # Call this right after checking for click
+    def reset(self):
+        self.stateCounter = (self.stateCounter + 1) % len(self.stateList)
+        self.pressed = False
     
+    def updateText(self, newText):
+        self.text = newText        
+                
+                
+            
 class Cell():
     def __init__(self, sideLength, colour, identification):
         self.sideLength = sideLength
@@ -165,4 +269,3 @@ class UIGrid():
     def changeColour(self, x, y, colour):
         cell = self.grid[y][x]
         cell.changeColour(colour)
-                    
