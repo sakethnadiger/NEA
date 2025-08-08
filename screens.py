@@ -267,6 +267,10 @@ def mainScreen():
                 print("The maze will now be generated.")
                 mazeButton.reset()
                 # Before carving maze clear the whole grid.
+                # ERROR FIX - maze can not be generated on large grid
+                if curGridSize == gridSize.LARGE:
+                    print("Maze can not be generated on large grid.")
+                    continue
                 uiGrid.clearGrid()
                 backendGrid.resetGrid()
                 # Set current start and end cells to obstacle as they will be moved

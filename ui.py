@@ -328,22 +328,23 @@ class UIGrid():
         return self.grid[y][x].getColour()
     
     def displayCells(self, discovered : list, path : list, delay,  start, end):
-        reflectedColours = {
-            (238, 238, 238, 255) : REFLECTED_WHITE,
-            (56, 102, 65, 255) : REFLECTED_GRASSGREEN,
-            (123, 64, 25, 255) : REFLECTED_BROWN,
-            (77, 168, 218, 255) : REFLECTED_WATERBLUE,
-            (255, 118, 1, 255) : REFLECTED_ORANGE,
-            (71, 96, 114, 255) : DARKBLUE
+        # reflectedColours = {
+        #     (238, 238, 238, 255) : REFLECTED_WHITE,
+        #     (56, 102, 65, 255) : REFLECTED_GRASSGREEN,
+        #     (123, 64, 25, 255) : REFLECTED_BROWN,
+        #     (77, 168, 218, 255) : REFLECTED_WATERBLUE,
+        #     (255, 118, 1, 255) : REFLECTED_ORANGE,
+        #     (71, 96, 114, 255) : DARKBLUE
             
-        }
+        # }
         
         for cell in discovered:
             if cell == start or cell == end: 
                 continue
             
-            colour = tuple(self.getColour(cell[0], cell[1]))
-            self.changeColour(cell[0], cell[1], reflectedColours[colour])
+            # colour = tuple(self.getColour(cell[0], cell[1]))
+            # self.changeColour(cell[0], cell[1], reflectedColours[colour])
+            self.changeColour(cell[0], cell[1], DARKBLUE)
             pygame.time.delay(delay)
             pygame.display.update()
         
