@@ -36,13 +36,3 @@ def BFS(A, start: tuple, end: tuple): # --> returns ordered discovered cells and
     endTime = time.perf_counter()
     runtime = (endTime - startTime)*10**3
     return uiDiscovered, [], round(runtime, 4)
-
-test = grid.Grid(10, 10)
-obstacles = [(1, 0), (5, 6), (3, 4), (4, 6), (5, 8), (9, 2), (6, 3)]
-
-for o in obstacles:
-    test.insertValue("#", o[0], o[1])
-
-cells, path, t = BFS(test.adjacencyList(), test.getStart(), test.getEnd())
-
-test.displayPath(path)

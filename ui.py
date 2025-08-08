@@ -9,6 +9,13 @@ GREY = pygame.Color("#222831")
 BLUE = pygame.Color("#00ADB5")
 LIGHTBLUE = pygame.Color("#33C3CA")
 WHITE = pygame.Color("#EEEEEE")
+GREEN = pygame.Color("#06D001")
+RED = pygame.Color("#F93827")
+GRASSGREEN = pygame.Color("#386641")
+BROWN = pygame.Color("#7B4019")
+WATERBLUE = pygame.Color("#4DA8DA")
+ORANGE = pygame.Color("#FF7601")
+PURPLE = pygame.Color("#7E5CAD")
 
 def normalisedToScreen(input_x, input_y, obj_width, obj_height):
     if input_x < -1: input_x = -1
@@ -33,28 +40,32 @@ class Label():
         self.text = text
         self.textSize = textSize
         self.textColour = textColour
-        self.font = pygame.font.SysFont("ebrima", self.textSize)
+        self.font = pygame.font.SysFont("ebrima", self.textSize * 4)
     
     # (x, y) is the position that the user wants to place the CENTRE of the label
-    def draw(self, surface, x, y):
+    def draw(self, surface, x, y, normalised=True, offset=0):
         lines = self.text.split("\n")
         textImgs = []
         imgWidths = []
         imgHeights = []
         for line in lines:
             render = self.font.render(line, True, self.textColour)
-            textImgs.append(render)
-            imgWidths.append(render.get_width())
-            imgHeights.append(render.get_height())
+            scaled_render = pygame.transform.smoothscale(render, (render.get_width() // 4, render.get_height() // 4))
+            textImgs.append(scaled_render)
+            imgWidths.append(scaled_render.get_width())
+            imgHeights.append(scaled_render.get_height())
         # Auto set the width and height of the box around the text. May need to add padding to this.
         if self.autoSize:
             self.width = max(imgWidths)
             self.height = sum(imgHeights)
-        true_x, true_y = normalisedToScreen(x, y, self.width, self.height)
+        if normalised:
+            true_x, true_y = normalisedToScreen(x, y, self.width, self.height)
+        else:
+            true_x, true_y = x, y
         self.box = pygame.Rect(true_x, true_y, self.width, self.height)
-        pygame.draw.rect(surface, self.colour, self.box)
+        pygame.draw.rect(surface, self.colour, self.box, 0, 12)
         
-        heightCounter = true_y
+        heightCounter = true_y + offset
         for l, line in enumerate(textImgs):
             height = imgHeights[l]
             surface.blit(line, (true_x, heightCounter))
@@ -65,7 +76,7 @@ class Label():
 
 class Button(Label):
     def __init__(self, width, height, colour, text, textSize, textColour, identification, autoSize=False):
-        super().__init__(width, height, colour, text, textSize, textColour, autoSize=False)
+        super().__init__(width, height, colour, text, textSize, textColour, autoSize=autoSize)
         self.identification = identification
         self.originalColour = colour
         self.pressed = False
@@ -73,16 +84,17 @@ class Button(Label):
     def getId(self):
         return self.identification
     
-    def draw(self, surface, x, y, normalised=True):
+    def draw(self, surface, x, y, normalised=True, offset=0):
         lines = self.text.split("\n")
         textImgs = []
         imgWidths = []
         imgHeights = []
         for line in lines:
             render = self.font.render(line, True, self.textColour)
-            textImgs.append(render)
-            imgWidths.append(render.get_width())
-            imgHeights.append(render.get_height())
+            scaled_render = pygame.transform.smoothscale(render, (render.get_width() // 4, render.get_height() // 4))
+            textImgs.append(scaled_render)
+            imgWidths.append(scaled_render.get_width())
+            imgHeights.append(scaled_render.get_height())
         # Auto set the width and height of the box around the text. May need to add padding to this.
         if self.autoSize:
             self.width = max(imgWidths)
@@ -92,8 +104,8 @@ class Button(Label):
         else:
             true_x, true_y = x, y
         self.box = pygame.Rect(true_x, true_y, self.width, self.height)
-        pygame.draw.rect(surface, self.colour, self.box)
-        heightCounter = true_y
+        pygame.draw.rect(surface, self.colour, self.box, 0, 12)
+        heightCounter = true_y + offset
         for l, line in enumerate(textImgs):
             height = imgHeights[l]
             surface.blit(line, (true_x, heightCounter))
@@ -127,7 +139,7 @@ class Cyclic():
         self.identification = identification
         self.pressed = False
         self.originalColour = colour
-        self.font = pygame.font.SysFont("ebrima", self.textSize)
+        self.font = pygame.font.SysFont("ebrima", self.textSize * 4)
 
         self.states = states
         self.stateCounter = 0
@@ -142,7 +154,7 @@ class Cyclic():
     def getState(self):
         return self.stateList[self.stateCounter]
         
-    def draw(self, surface, x, y, normalised=True):
+    def draw(self, surface, x, y, normalised=True, offset=0):
         
         curState = self.stateList[self.stateCounter]
         self.text = self.states[curState]
@@ -153,9 +165,10 @@ class Cyclic():
         imgHeights = []
         for line in lines:
             render = self.font.render(line, True, self.textColour)
-            textImgs.append(render)
-            imgWidths.append(render.get_width())
-            imgHeights.append(render.get_height())
+            scaled_render = pygame.transform.smoothscale(render, (render.get_width() // 4, render.get_height() // 4))
+            textImgs.append(scaled_render)
+            imgWidths.append(scaled_render.get_width())
+            imgHeights.append(scaled_render.get_height())
         # Auto set the width and height of the box around the text. May need to add padding to this.
         if self.autoSize:
             self.width = max(imgWidths)
@@ -165,8 +178,8 @@ class Cyclic():
         else:
             true_x, true_y = x, y
         self.box = pygame.Rect(true_x, true_y, self.width, self.height)
-        pygame.draw.rect(surface, self.colour, self.box)
-        heightCounter = true_y
+        pygame.draw.rect(surface, self.colour, self.box, 0, 12)
+        heightCounter = true_y + offset
         for l, line in enumerate(textImgs):
             height = imgHeights[l]
             surface.blit(line, (true_x, heightCounter))
@@ -200,6 +213,9 @@ class Cell():
         self.pressed = False
     
     def draw(self, surface, x, y):
+        self.surface = surface
+        self.x = x
+        self.y = y
         self.box = pygame.Rect(x, y, self.sideLength, self.sideLength)
         self.border = pygame.Rect(x, y, self.sideLength, self.sideLength)
         pygame.draw.rect(surface, self.colour, self.box)
@@ -228,7 +244,8 @@ class Cell():
     
     def changeColour(self, newColour):
         self.colour = newColour
-
+        self.draw(self.surface, self.x, self.y)
+        
 class UIGrid():
     def __init__(self, rows, columns, cellSize):
         self.rows = rows
@@ -269,3 +286,17 @@ class UIGrid():
     def changeColour(self, x, y, colour):
         cell = self.grid[y][x]
         cell.changeColour(colour)
+    
+    def changeDimensions(self, newRows, newCols, newSize):
+        self.rows = newRows
+        self.columns = newCols
+        self.cellSize = newSize
+        self.grid = []
+        for i in range(self.rows):
+            row = []
+            for j in range(self.columns):
+                cell = Cell(self.cellSize, GREY, (j, i))
+                row.append(cell)
+            self.grid.append(row)
+        
+        
