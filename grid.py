@@ -240,4 +240,3 @@ class Grid:
     
     def getVariables(self):
         return self.adjacencyList(), self.getStart(), self.getEnd()
-

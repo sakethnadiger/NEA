@@ -100,7 +100,10 @@ def mainScreen():
     
     # Initialise all elements here
     uiGrid = UIGrid(gridSizeVals[curGridSize][0], gridSizeVals[curGridSize][1], gridSizeVals[curGridSize][2])
-    terminal = Label(1260, 70, BLACK, "", 10, WHITE)
+    terminal = Label(1260, 70, BLACK, "", 15, WHITE)
+    messageQueue = []
+    headPointer = 0
+    tailPointer = 0
     
     # top row button initialisation
     back = Button(70, 70, BLACK, "  BACK ", 20, WHITE, "back button")
@@ -136,6 +139,15 @@ def mainScreen():
         uiGrid.changeColour(backendGrid.getEnd()[0], backendGrid.getEnd()[1], RED)
         
         terminal.draw(screen, 10, 90, normalised=False)
+        messageString = ""
+        if messageQueue:
+            for index in range(headPointer, tailPointer):
+                messageString += f"[{index + 1}] " + messageQueue[index] + "\n"
+        
+        terminal.updateText(messageString.strip())
+            
+        
+            
         
         # top row button drawing
         back.draw(screen, 10, 10, normalised=False, offset=20)
@@ -216,51 +228,148 @@ def mainScreen():
             if dfsButton.eventOccurence(event):
                 # Need to reset grid to only obstacles and weights
                 uiGrid.backendToFrontendColour(backendGrid.getArray())
-                print("DFS will now be run.")
+                print("DFS will now run.")
                 dfsButton.reset()
                 adjacencyList, start, end = backendGrid.getVariables()
                 discovered, path, time = DFS(adjacencyList, start, end)
-                print(f"DFS completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells.")
-                uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                if not path:
+                    message = f"There is no possible path from the start cell to the end cell."
+                    print(message)
+                    if len(messageQueue) >= 3:
+                        messageQueue.append(message)
+                        headPointer += 1
+                        tailPointer += 1
+                    else:
+                        messageQueue.append(message)
+                        tailPointer += 1
+                else:
+                    message = f"DFS completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells."
+                    print(message)
+                    if len(messageQueue) >= 3:
+                        messageQueue.append(message)
+                        headPointer += 1
+                        tailPointer += 1
+                    else:
+                        messageQueue.append(message)
+                        tailPointer += 1
+                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
             
             if bfsButton.eventOccurence(event):
                 # Need to reset grid to only obstacles and weights
                 uiGrid.backendToFrontendColour(backendGrid.getArray())
-                print("BFS will now be run.")
+                print("BFS will now run.")
                 bfsButton.reset()
                 adjacencyList, start, end = backendGrid.getVariables()
                 discovered, path, time = BFS(adjacencyList, start, end)
-                print(f"BFS completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells.")
-                uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                if not path:
+                    message = f"There is no possible path from the start cell to the end cell."
+                    print(message)
+                    if len(messageQueue) >= 3:
+                        messageQueue.append(message)
+                        headPointer += 1
+                        tailPointer += 1
+                    else:
+                        messageQueue.append(message)
+                        tailPointer += 1
+                else:
+                    message = f"BFS completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells."
+                    print(message)
+                    if len(messageQueue) >= 3:
+                        messageQueue.append(message)
+                        headPointer += 1
+                        tailPointer += 1
+                    else:
+                        messageQueue.append(message)
+                        tailPointer += 1
+                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
             
             if dijkstraButton.eventOccurence(event):
                 # Need to reset grid to only obstacles and weights
                 uiGrid.backendToFrontendColour(backendGrid.getArray())
-                print("Dijkstra's algorithm will now be run.")
+                print("Dijkstra's algorithm will now run.")
                 dijkstraButton.reset()
                 adjacencyList, start, end = backendGrid.getVariables()
                 cost, discovered, path, time = DIJKSTRA(adjacencyList, start, end)
-                print(f"Dijkstra's algorithm completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}.")
-                uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                if not path:
+                    message = f"There is no possible path from the start cell to the end cell."
+                    print(message)
+                    if len(messageQueue) >= 3:
+                        messageQueue.append(message)
+                        headPointer += 1
+                        tailPointer += 1
+                    else:
+                        messageQueue.append(message)
+                        tailPointer += 1
+                else:
+                    
+                    message = f"Dijkstra's algorithm completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells."
+                    print(message)
+                    if len(messageQueue) >= 3:
+                        messageQueue.append(message)
+                        headPointer += 1
+                        tailPointer += 1
+                    else:
+                        messageQueue.append(message)
+                        tailPointer += 1
+                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
             
             if astarCyclic.eventOccurence(event):
                 astarCyclic.reset()
                 heuristic = astarCyclic.getState()
-                print(f"A* {heuristic} algorithm will now be run.")
+                print(f"A* {heuristic} algorithm will now run.")
                 if heuristic == "EUCLIDEAN":
                     # Need to reset grid to only obstacles and weights
                     uiGrid.backendToFrontendColour(backendGrid.getArray())
                     adjacencyList, start, end = backendGrid.getVariables()
                     cost, discovered, path, time = ASTAR(adjacencyList, start, end, EUCLIDEAN)
-                    print(f"{heuristic} A* algorithm completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}.")
-                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                    if not path:
+                        message = f"There is no possible path from the start cell to the end cell."
+                        print(message)
+                        if len(messageQueue) >= 3:
+                            messageQueue.append(message)
+                            headPointer += 1
+                            tailPointer += 1
+                        else:
+                            messageQueue.append(message)
+                            tailPointer += 1
+                    else:
+                        message = f"{heuristic} A* algorithm completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells."
+                        print(message)
+                        if len(messageQueue) >= 3:
+                            messageQueue.append(message)
+                            headPointer += 1
+                            tailPointer += 1
+                        else:
+                            messageQueue.append(message)
+                            tailPointer += 1
+                        
+                        uiGrid.displayCells(discovered, path, timeDelay, start, end)
                 else:
                     # Need to reset grid to only obstacles and weights
                     uiGrid.backendToFrontendColour(backendGrid.getArray())
                     adjacencyList, start, end = backendGrid.getVariables()
                     cost, discovered, path, time = ASTAR(adjacencyList, start, end, MANHATTAN)
-                    print(f"{heuristic} A* algorithm completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}.")
-                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                    if not path:
+                        message = f"There is no possible path from the start cell to the end cell."
+                        print(message)
+                        if len(messageQueue) >= 3:
+                            messageQueue.append(message)
+                            headPointer += 1
+                            tailPointer += 1
+                        else:
+                            messageQueue.append(message)
+                            tailPointer += 1
+                    else:
+                        message = f"{heuristic} A* algorithm completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells."
+                        print(message)
+                        if len(messageQueue) >= 3:
+                            messageQueue.append(message)
+                            headPointer += 1
+                            tailPointer += 1
+                        else:
+                            messageQueue.append(message)
+                            tailPointer += 1
+                        uiGrid.displayCells(discovered, path, timeDelay, start, end)
                 
             
             if mazeButton.eventOccurence(event):
@@ -269,7 +378,14 @@ def mainScreen():
                 # Before carving maze clear the whole grid.
                 # ERROR FIX - maze can not be generated on large grid
                 if curGridSize == gridSize.LARGE:
-                    print("Maze can not be generated on large grid.")
+                    message = "Maze can not be generated on a large grid."
+                    if len(messageQueue) >= 3:
+                        messageQueue.append(message)
+                        headPointer += 1
+                        tailPointer += 1
+                    else:
+                        messageQueue.append(message)
+                        tailPointer += 1
                     continue
                 uiGrid.clearGrid()
                 backendGrid.resetGrid()
