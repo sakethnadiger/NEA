@@ -1,6 +1,10 @@
 import pygame
 from ui import *
 from grid import Grid
+from dfs import DFS
+from bfs import BFS
+from dijkstra import DIJKSTRA
+from astar import *
 from enum import *
 
 # Not resizable
@@ -35,6 +39,36 @@ def mainScreen():
         SLOW = auto()
         MEDIUM = auto()
         FAST = auto()
+        
+    class Insert(Enum):
+        START = auto()
+        END = auto()
+        OBSTACLE = auto()
+        GRASS = auto()
+        WATER = auto()
+        SNOW = auto()
+        ROCK = auto()
+        LAVA = auto()
+        
+    colourCodes = {
+            Insert.GRASS : GRASSGREEN,
+            Insert.WATER : WATERBLUE,
+            Insert.SNOW : WHITE,
+            Insert.ROCK : BROWN,
+            Insert.LAVA : ORANGE,
+            Insert.OBSTACLE : BLACK,
+            Insert.START : GREEN,
+            Insert.END : RED
+    }
+    
+    insertCodes = {
+            Insert.GRASS : 2,
+            Insert.WATER : 5,
+            Insert.SNOW : 10,
+            Insert.ROCK : 20,
+            Insert.LAVA : 50,
+            Insert.OBSTACLE : "#",
+    }
     
     gridSizeVals = {
         
@@ -47,15 +81,20 @@ def mainScreen():
     # Need to change these values
     speedVals = {
         
-        Speed.SLOW : 1000, 
-        Speed.MEDIUM : 100,
-        Speed.FAST : 10
+        Speed.SLOW : 200, 
+        Speed.MEDIUM : 30,
+        Speed.FAST : 5
             
     }
     
     curGridSize = gridSize.SMALL
     curSpeed = Speed.FAST
+    curInsert = Insert.OBSTACLE
     
+    timeDelay = speedVals[curSpeed]
+    
+    # Initialise backend grid
+    backendGrid = Grid(gridSizeVals[curGridSize][0], gridSizeVals[curGridSize][1])
     # Set a screen caption
     pygame.display.set_caption("Pathfinding Visualiser - Animate")
     
@@ -66,7 +105,7 @@ def mainScreen():
     # top row button initialisation
     back = Button(70, 70, BLACK, "  BACK ", 20, WHITE, "back button")
     gridSizeCyclic = Cyclic(90, 70, BLUE, 15, BLACK, {gridSize.SMALL : "   GRID SIZE   \n      SMALL", gridSize.MEDIUM : "   GRID SIZE   \n    MEDIUM", gridSize.LARGE: "   GRID SIZE   \n      LARGE"}, "grid size")
-    speedCyclic = Cyclic(90, 70, BLUE, 15, BLACK, {Speed.SLOW : " ANIMATION   \n      SLOW", Speed.MEDIUM : " ANIMATION   \n    MEDIUM", Speed.FAST: " ANIMATION   \n        FAST"}, "animation speed")
+    speedCyclic = Cyclic(90, 70, BLUE, 15, BLACK, {Speed.FAST: " ANIMATION   \n        FAST", Speed.SLOW : " ANIMATION   \n      SLOW", Speed.MEDIUM : " ANIMATION   \n    MEDIUM"}, "animation speed")
     dfsButton = Button(90, 70, BLUE, "      DEPTH\n       FIRST\n     SEARCH", 15, BLACK, "DFS button")
     bfsButton = Button(90, 70, BLUE, "   BREADTH\n       FIRST\n     SEARCH", 15, BLACK, "BFS button")
     dijkstraButton = Button(90, 70, BLUE, "  DIJKSTRA'S\n ALGORITHM", 15, BLACK, "dijkstra's button")
@@ -89,12 +128,12 @@ def mainScreen():
     while running:
 
         # Draw elements here
-        screen.fill((34, 40, 49))
+        screen.fill(GREY)
         
         # Draw grid and colour in start and end cells which are top left and bottom right by default - CHANGE THIS CODE WHEN USING GRID CLASS FROM BACKEND
         uiGrid.draw(screen, 10, 170)
-        uiGrid.changeColour(0, 0, GREEN)
-        uiGrid.changeColour(gridSizeVals[curGridSize][1] - 1, gridSizeVals[curGridSize][0] - 1, RED)
+        uiGrid.changeColour(backendGrid.getStart()[0], backendGrid.getStart()[1], GREEN)
+        uiGrid.changeColour(backendGrid.getEnd()[0], backendGrid.getEnd()[1], RED)
         
         terminal.draw(screen, 10, 90, normalised=False)
         
@@ -127,8 +166,37 @@ def mainScreen():
                 return Screen.QUIT
             
             if uiGrid.eventOccurence(event):
-                print(f"{uiGrid.clickedCell()} was clicked.")
+                clicked, button = uiGrid.clickedCell()
+                print(f"{clicked} was clicked.")
                 uiGrid.reset()
+                if button == 3 and clicked != backendGrid.getStart() and clicked != backendGrid.getEnd():
+                    uiGrid.changeColour(clicked[0], clicked[1], GREY)
+                    backendGrid.insertValue(0, clicked[0], clicked[1])
+                else:
+                    
+                    if clicked == backendGrid.getStart():
+                        curInsert = Insert.START
+                        continue
+                    if clicked == backendGrid.getEnd():
+                        curInsert = Insert.END
+                        continue
+                
+                    if curInsert != Insert.START and curInsert != Insert.END:
+                        uiGrid.changeColour(clicked[0], clicked[1], colourCodes[curInsert])
+                        backendGrid.insertValue(insertCodes[curInsert], clicked[0], clicked[1])
+                    else:
+                        if curInsert == Insert.START:
+                            # If a start changes position the original position needs to be made empty. The backend grid needs to be updated
+                            currentStart = backendGrid.getStart()
+                            uiGrid.changeColour(currentStart[0], currentStart[1], GREY)
+                            backendGrid.changeStart(clicked[0], clicked[1])
+                        
+                        elif curInsert == Insert.END:
+                            # If an end changes position the original position needs to be made empty. The backend grid needs to be updated
+                            currentEnd = backendGrid.getEnd()
+                            uiGrid.changeColour(currentEnd[0], currentEnd[1], GREY)
+                            backendGrid.changeEnd(clicked[0], clicked[1])
+                
             
             if back.eventOccurence(event):
                 return Screen.ENTRYSCREEN
@@ -137,67 +205,134 @@ def mainScreen():
                 gridSizeCyclic.reset()
                 curGridSize = gridSizeCyclic.getState()
                 uiGrid.changeDimensions(gridSizeVals[curGridSize][0], gridSizeVals[curGridSize][1], gridSizeVals[curGridSize][2])
+                backendGrid = Grid(gridSizeVals[curGridSize][0], gridSizeVals[curGridSize][1])
             
             if speedCyclic.eventOccurence(event):
                 speedCyclic.reset()
                 curSpeed = speedCyclic.getState()
-                print(speedVals[curSpeed])
+                timeDelay = speedVals[curSpeed]
+                
             
             if dfsButton.eventOccurence(event):
+                # Need to reset grid to only obstacles and weights
+                uiGrid.backendToFrontendColour(backendGrid.getArray())
                 print("DFS will now be run.")
                 dfsButton.reset()
+                adjacencyList, start, end = backendGrid.getVariables()
+                discovered, path, time = DFS(adjacencyList, start, end)
+                print(f"DFS completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells.")
+                uiGrid.displayCells(discovered, path, timeDelay, start, end)
             
             if bfsButton.eventOccurence(event):
+                # Need to reset grid to only obstacles and weights
+                uiGrid.backendToFrontendColour(backendGrid.getArray())
                 print("BFS will now be run.")
                 bfsButton.reset()
+                adjacencyList, start, end = backendGrid.getVariables()
+                discovered, path, time = BFS(adjacencyList, start, end)
+                print(f"BFS completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells.")
+                uiGrid.displayCells(discovered, path, timeDelay, start, end)
             
             if dijkstraButton.eventOccurence(event):
+                # Need to reset grid to only obstacles and weights
+                uiGrid.backendToFrontendColour(backendGrid.getArray())
                 print("Dijkstra's algorithm will now be run.")
                 dijkstraButton.reset()
+                adjacencyList, start, end = backendGrid.getVariables()
+                cost, discovered, path, time = DIJKSTRA(adjacencyList, start, end)
+                print(f"Dijkstra's algorithm completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}.")
+                uiGrid.displayCells(discovered, path, timeDelay, start, end)
             
             if astarCyclic.eventOccurence(event):
                 astarCyclic.reset()
-                print(f"A* {astarCyclic.getState()} algorithm will now be run.")
+                heuristic = astarCyclic.getState()
+                print(f"A* {heuristic} algorithm will now be run.")
+                if heuristic == "EUCLIDEAN":
+                    # Need to reset grid to only obstacles and weights
+                    uiGrid.backendToFrontendColour(backendGrid.getArray())
+                    adjacencyList, start, end = backendGrid.getVariables()
+                    cost, discovered, path, time = ASTAR(adjacencyList, start, end, EUCLIDEAN)
+                    print(f"{heuristic} A* algorithm completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}.")
+                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                else:
+                    # Need to reset grid to only obstacles and weights
+                    uiGrid.backendToFrontendColour(backendGrid.getArray())
+                    adjacencyList, start, end = backendGrid.getVariables()
+                    cost, discovered, path, time = ASTAR(adjacencyList, start, end, MANHATTAN)
+                    print(f"{heuristic} A* algorithm completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}.")
+                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                
             
             if mazeButton.eventOccurence(event):
                 print("The maze will now be generated.")
                 mazeButton.reset()
+                # Before carving maze clear the whole grid.
+                uiGrid.clearGrid()
+                backendGrid.resetGrid()
+                # Set current start and end cells to obstacle as they will be moved
+                currentStart = backendGrid.getStart()
+                uiGrid.changeColour(currentStart[0], currentStart[1], BLACK)
+                currentEnd = backendGrid.getEnd()
+                uiGrid.changeColour(currentEnd[0], currentEnd[1], BLACK)
+                # Fill grid with obstacles for visualisation
+                uiGrid.fillGrid()
+                discovered = backendGrid.generateMaze()
+                uiGrid.changeColour(backendGrid.getStart()[0], backendGrid.getStart()[1], GREEN)
+                uiGrid.changeColour(backendGrid.getEnd()[0], backendGrid.getEnd()[1], RED)
+                uiGrid.carveMaze(discovered, GREY, timeDelay, backendGrid.getStart(), backendGrid.getEnd())
             
             if obstacleButton.eventOccurence(event):
                 print("An obstacle can now be placed.")
                 obstacleButton.reset()
+                curInsert = Insert.OBSTACLE
+                uiGrid.backendToFrontendColour(backendGrid.getArray())
             
             if snowButton.eventOccurence(event):
                 print("A snow can now be placed.")
                 snowButton.reset()
+                curInsert = Insert.SNOW
+                uiGrid.backendToFrontendColour(backendGrid.getArray())
                 
             if grassButton.eventOccurence(event):
                 print("A grass can now be placed.")
                 grassButton.reset()
+                curInsert = Insert.GRASS
+                uiGrid.backendToFrontendColour(backendGrid.getArray())
             
             if rockButton.eventOccurence(event):
                 print("A rock can now be placed.")
                 rockButton.reset()
+                curInsert = Insert.ROCK
+                uiGrid.backendToFrontendColour(backendGrid.getArray())
             
             if waterButton.eventOccurence(event):
                 print("A water can now be placed.")
                 waterButton.reset()
+                curInsert = Insert.WATER
+                uiGrid.backendToFrontendColour(backendGrid.getArray())
             
             if lavaButton.eventOccurence(event):
                 print("A lava can now be placed.")
                 lavaButton.reset()
+                curInsert = Insert.LAVA
+                uiGrid.backendToFrontendColour(backendGrid.getArray())
             
             if randomWeightButton.eventOccurence(event):
                 print("A randomly weighted grid will now be generated.")
                 randomWeightButton.reset()
+                backendGrid.randomWeightedGrid()
+                uiGrid.backendToFrontendColour(backendGrid.getArray())
             
             if resetGridButton.eventOccurence(event):
                 print("The grid will now be reset.")
                 resetGridButton.reset()
+                uiGrid.clearGrid()
+                backendGrid.resetGrid()
             
             if resetPathButton.eventOccurence(event):
                 print("The path will now be reset.")
                 resetPathButton.reset()
+                uiGrid.backendToFrontendColour(backendGrid.getArray())
                 
         pygame.display.update()
         
@@ -216,14 +351,14 @@ def entryScreen():
     
     # Initialise all elements here
     title = Label(0, 0, GREY, "PATHFINDING VISUALISER", 50, BLUE, autoSize=True)
-    animate = Button(0, 0, BLUE, "                          ANIMATE\n Watch the algorithms in action on a grid ", 25, GREY, "animate", autoSize=True)
-    learn = Button(0, 0, BLUE, "                          LEARN\n Learn about how the algorithms work ", 25, GREY, "animate", autoSize=True)
+    animate = Button(0, 0, BLUE, "                          ANIMATE\n Watch the algorithms in action on a grid ", 25, BLACK, "animate", autoSize=True)
+    learn = Button(0, 0, BLUE, "                          LEARN\n Learn about how the algorithms work ", 25, BLACK, "animate", autoSize=True)
     
     running = True
     while running:
 
         # Draw elements here
-        screen.fill((34, 40, 49))
+        screen.fill(GREY)
         title.draw(screen, 0, 0.8)
         animate.draw(screen, 0, 0.1) 
         learn.draw(screen, 0, -0.1)

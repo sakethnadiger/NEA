@@ -48,12 +48,4 @@ def DIJKSTRA(A, start: tuple, end: tuple): # --> returns ordered discovered cell
     runtime = (endTime - startTime) * 10**3
     return 0, uiDiscovered, [], round(runtime, 4)
 
-test = grid.Grid(10, 10)
-
-test.randomWeightedGrid()
-
-dist, cells, path, t = DIJKSTRA(test.adjacencyList(), test.getStart(), test.getEnd())
-
-cur_alg = "Dijkstra's"
-
-print(f"{cur_alg} completed in {t}, visited {len(cells)} cells, shortest path {len(path)} cells, with cost {dist}.")
+#print(f"{cur_alg} completed in {t}, visited {len(cells)} cells, shortest path {len(path)} cells, with cost {dist}.")

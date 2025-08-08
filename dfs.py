@@ -37,9 +37,3 @@ def DFS(A, start: tuple, end: tuple): # --> returns ordered discovered cells and
     runtime = (endTime - startTime)*10**3
     return uiDiscovered, [], round(runtime, 4)
 
-
-test = grid.Grid(10, 10)
-
-cells, path, t = DFS(test.adjacencyList(), test.getStart(), test.getEnd())
-
-test.displayPath(path)

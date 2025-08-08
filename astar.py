@@ -74,12 +74,4 @@ def ASTAR(A, start: tuple, end: tuple, heuristic): # --> returns ordered discove
     runtime = (endTime - startTime) * 10**3
     return 0, uiDiscovered, [], round(runtime, 4)
 
-test = grid.Grid(10, 10)
-
-test.randomWeightedGrid()
-
-dist, cells, path, t = ASTAR(test.adjacencyList(), test.getStart(), test.getEnd(), EUCLIDEAN)
-
-cur_alg = "A*"
-
-print(f"{cur_alg} completed in {t}ms, visited {len(cells)} cells, shortest path {len(path)} cells, with cost {dist}.")
+#print(f"{cur_alg} completed in {t}ms, visited {len(cells)} cells, shortest path {len(path)} cells, with cost {dist}.")

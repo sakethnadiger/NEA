@@ -4,18 +4,30 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
 
 # Define colours - will add to this
-BLACK = pygame.Color("#000000")
-GREY = pygame.Color("#222831")
+BLACK = pygame.Color("#132C33")
+GREY = pygame.Color("#476072")
 BLUE = pygame.Color("#00ADB5")
-LIGHTBLUE = pygame.Color("#33C3CA")
 WHITE = pygame.Color("#EEEEEE")
+REFLECTED_WHITE = pygame.Color("#7EB3B8")
 GREEN = pygame.Color("#06D001")
 RED = pygame.Color("#F93827")
 GRASSGREEN = pygame.Color("#386641")
+REFLECTED_GRASSGREEN = pygame.Color("#1D4D32")
 BROWN = pygame.Color("#7B4019")
+REFLECTED_BROWN = pygame.Color("#413013")
 WATERBLUE = pygame.Color("#4DA8DA")
+REFLECTED_WATERBLUE = pygame.Color("#287EA8")
 ORANGE = pygame.Color("#FF7601")
+REFLECTED_ORANGE = pygame.Color("#875900")
 PURPLE = pygame.Color("#7E5CAD")
+DARKBLUE = pygame.Color("#0F828C")
+YELLOW = pygame.Color("#FFD700")
+
+def lighten(colour, amount=0.15):
+    r = min(int(colour.r + (255 - colour.r) * amount), 255)
+    g = min(int(colour.g + (255 - colour.g) * amount), 255)
+    b = min(int(colour.b + (255 - colour.b) * amount), 255)
+    return pygame.Color(r, g, b)
 
 def normalisedToScreen(input_x, input_y, obj_width, obj_height):
     if input_x < -1: input_x = -1
@@ -116,7 +128,7 @@ class Button(Label):
         self.colour = self.originalColour
         mousePos = pygame.mouse.get_pos()
         if self.box.collidepoint(mousePos):
-            self.colour = LIGHTBLUE
+            self.colour = lighten(self.originalColour)
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not self.pressed:
                 self.pressed = True
                 return True
@@ -190,7 +202,7 @@ class Cyclic():
         self.colour = self.originalColour
         mousePos = pygame.mouse.get_pos()
         if self.box.collidepoint(mousePos):
-            self.colour = LIGHTBLUE
+            self.colour = lighten(self.originalColour)
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not self.pressed:
                 self.pressed = True
                 return True
@@ -211,6 +223,7 @@ class Cell():
         self.colour = colour
         self.identification = identification
         self.pressed = False
+        self.button = 0
     
     def draw(self, surface, x, y):
         self.surface = surface
@@ -219,7 +232,7 @@ class Cell():
         self.box = pygame.Rect(x, y, self.sideLength, self.sideLength)
         self.border = pygame.Rect(x, y, self.sideLength, self.sideLength)
         pygame.draw.rect(surface, self.colour, self.box)
-        pygame.draw.rect(surface, BLUE, self.border, 1)
+        pygame.draw.rect(surface, BLACK, self.border, 1)
         
     
     # handle a click
@@ -228,7 +241,13 @@ class Cell():
         if self.box.collidepoint(mousePos):
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not self.pressed:
                 self.pressed = True
+                self.button = 1
                 return True
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 and not self.pressed:
+                self.pressed = True
+                self.button = 3
+                return True
+        
     
     def isClicked(self):
         if self.pressed:
@@ -238,6 +257,9 @@ class Cell():
     def getId(self):
         return self.identification
     
+    def getButton(self):
+        return self.button
+    
     # Call this right after checking for click
     def reset(self):
         self.pressed = False
@@ -245,6 +267,9 @@ class Cell():
     def changeColour(self, newColour):
         self.colour = newColour
         self.draw(self.surface, self.x, self.y)
+    
+    def getColour(self):
+        return self.colour
         
 class UIGrid():
     def __init__(self, rows, columns, cellSize):
@@ -276,7 +301,7 @@ class UIGrid():
         for row in self.grid:
             for cell in row:
                 if cell.isClicked():
-                    return cell.getId()
+                    return cell.getId(), cell.getButton()
     
     def reset(self):
         for row in self.grid:
@@ -298,5 +323,72 @@ class UIGrid():
                 cell = Cell(self.cellSize, GREY, (j, i))
                 row.append(cell)
             self.grid.append(row)
+    
+    def getColour(self, x, y):
+        return self.grid[y][x].getColour()
+    
+    def displayCells(self, discovered : list, path : list, delay,  start, end):
+        reflectedColours = {
+            (238, 238, 238, 255) : REFLECTED_WHITE,
+            (56, 102, 65, 255) : REFLECTED_GRASSGREEN,
+            (123, 64, 25, 255) : REFLECTED_BROWN,
+            (77, 168, 218, 255) : REFLECTED_WATERBLUE,
+            (255, 118, 1, 255) : REFLECTED_ORANGE,
+            (71, 96, 114, 255) : DARKBLUE
+            
+        }
         
+        for cell in discovered:
+            if cell == start or cell == end: 
+                continue
+            
+            colour = tuple(self.getColour(cell[0], cell[1]))
+            self.changeColour(cell[0], cell[1], reflectedColours[colour])
+            pygame.time.delay(delay)
+            pygame.display.update()
+        
+        for cell in path:
+            if cell == start or cell == end: continue
+            self.changeColour(cell[0], cell[1], YELLOW)
+            pygame.time.delay(delay)
+            pygame.display.update()
+    
+    def backendToFrontendColour(self, backendArray):
+        colourCodes = {
+            0 : GREY,
+            2 : GRASSGREEN,
+            5 : WATERBLUE,
+            10 : WHITE,
+            20 : BROWN,
+            50 : ORANGE,
+            "#" : BLACK,
+            "S" : GREEN,
+            "E" : RED
+        }
+        
+        for y, row in enumerate(backendArray):
+            for x, val in enumerate(row):
+                correctColour = colourCodes[val]
+                self.changeColour(x, y, correctColour)
+    
+
+    def clearGrid(self):
+        for row in self.grid:
+            for cell in row:
+                coordinates = cell.getId()
+                if coordinates == (0, 0) or coordinates == (self.columns - 1, self.rows - 1): continue
+                self.changeColour(coordinates[0], coordinates[1], GREY)
+    
+    def fillGrid(self):
+        for row in self.grid:
+            for cell in row:
+                coordinates = cell.getId()
+                self.changeColour(coordinates[0], coordinates[1], BLACK)
+    
+    def carveMaze(self, discovered, colour, delay, start, end):
+        for cell in discovered:
+            if cell == start or cell == end: continue
+            self.changeColour(cell[0], cell[1], colour)
+            pygame.time.delay(delay)
+            pygame.display.update()
         

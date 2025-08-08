@@ -31,28 +31,31 @@ class Grid:
             self.gridArray[y][x] = cellValue
     
     def changeStart(self, x, y):
-        cur_x, cur_y = self. getStart()
+        curStart = self.getStart()
         self.gridArray[y][x] = "S"
-        self.gridArray[cur_y][cur_x] = 0
+        self.gridArray[curStart[1]][curStart[0]] = 0
         
     def changeEnd(self, x, y):
-        cur_x, cur_y = self. getEnd()
+        curEnd = self.getEnd()
         self.gridArray[y][x] = "E"
-        self.gridArray[cur_y][cur_x] = 0
+        self.gridArray[curEnd[1]][curEnd[0]] = 0
     
     # generate a randomly weighted grid
     def randomWeightedGrid(self):
-        random.seed(41042)
         for i in range(self.rows):
             for j in range(self.columns):
                 if self.gridArray[i][j] not in ["S", "E"]:
                     self.gridArray[i][j] = random.choice(self.weightChoices)
 
     
+    def getArray(self):
+        return self.gridArray
+    
     # currently only created a method for resetting grid.
     # option for resetting path will come after algorithm implementation
     def resetGrid(self):
         self.gridArray = [[0 for col in range(self.columns)] for row in range(self.rows)]
+        self.gridArray[0][0], self.gridArray[-1][-1] = "S", "E"
     
     # generate adjacency list - NEW: ADDED A NEW PARAMETER FOR A SPECIALISED MAZE GENERATION ADJACENCY LIST
     def adjacencyList(self, maze=False):
@@ -113,6 +116,8 @@ class Grid:
                             neighbours = [(x-2, y), (x+2, y), (x, y-2), (x, y+2)]
                         
                         adjacency[(x, y)] = validEdges(neighbours)
+                        
+                        
         else:
             for y, row in enumerate(self.gridArray):
                 for x, val in enumerate(row):
@@ -156,7 +161,7 @@ class Grid:
                         
                         # add map of weighted neighbours to adjacency list
                         adjacency[(x, y)] = validEdges(neighbours)
-            
+        
         return adjacency
     
     # used for maze generation
@@ -232,4 +237,7 @@ class Grid:
         
         for i in tempArray:
             print(" ".join(str(j) for j in i))
-            
+    
+    def getVariables(self):
+        return self.adjacencyList(), self.getStart(), self.getEnd()
+
