@@ -1,5 +1,6 @@
 import random
 import numpy as np
+import time
 
 # backend grid class --iteration 1--
 class Grid:
@@ -177,8 +178,9 @@ class Grid:
         self.insertValue("#", self.columns - 1, self.rows - 1)
         return self.adjacencyList(maze=True)
     
-    # DFS for maze generation
+    # DFS for maze generation - CHANGE : ADDED RUNTIME MEASURING TO MAZE GENERATION
     def generateMaze(self):
+        startTime = time.perf_counter()
         A = self.createWalls()
         start = self.getStart()
         
@@ -208,7 +210,9 @@ class Grid:
                 visited.add(new)
                 stack.append(new)
         
-        return uiDiscovered
+        endTime = time.perf_counter()
+        runtime = endTime - startTime
+        return uiDiscovered, round(runtime, 4)
     
     # mainly to output a clearly contrasted grid for a generated maze
     def outputGrid(self):
