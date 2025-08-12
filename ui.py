@@ -19,7 +19,7 @@ WATERBLUE = pygame.Color("#4DA8DA")
 REFLECTED_WATERBLUE = pygame.Color("#287EA8")
 ORANGE = pygame.Color("#FF7601")
 REFLECTED_ORANGE = pygame.Color("#875900")
-PURPLE = pygame.Color("#7E5CAD")
+PURPLE = pygame.Color("#511D43")
 DARKBLUE = pygame.Color("#0F828C")
 YELLOW = pygame.Color("#FFD700")
 
@@ -328,6 +328,7 @@ class UIGrid():
         return self.grid[y][x].getColour()
     
     def displayCells(self, discovered : list, path : list, delay,  start, end):
+        # OPTION TO OVERLAY DISCOVERED CELL ON TOP OF EXISTING COLOURS
         # reflectedColours = {
         #     (238, 238, 238, 255) : REFLECTED_WHITE,
         #     (56, 102, 65, 255) : REFLECTED_GRASSGREEN,
