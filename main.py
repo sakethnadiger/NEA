@@ -465,10 +465,11 @@ def learnScreen():
     pygame.display.set_caption("Pathfinding Visualiser - Learn")
     
     # get text from .txt files for each algorithm
-    dfsText = open(os.path.join("algorithmtext", "dfs.txt"), "r", encoding="utf-8").readline()
-    bfsText = open(os.path.join("algorithmtext", "bfs.txt"), "r", encoding="utf-8").readline()
-    dijkstraText = open(os.path.join("algorithmtext", "dijkstra.txt"), "r", encoding="utf-8").readline()
-    astarText = open(os.path.join("algorithmtext", "astar.txt"), "r", encoding="utf-8").readline()
+    base = os.path.dirname(os.path.abspath(__file__))
+    dfsText = open(os.path.join(base, "algorithmtext", "dfs.txt"), "r", encoding="utf-8").readline()
+    bfsText = open(os.path.join(base, "algorithmtext", "bfs.txt"), "r", encoding="utf-8").readline()
+    dijkstraText = open(os.path.join(base, "algorithmtext", "dijkstra.txt"), "r", encoding="utf-8").readline()
+    astarText = open(os.path.join(base, "algorithmtext", "astar.txt"), "r", encoding="utf-8").readline()
     
     # Initialise elements
     learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLUE)
@@ -486,11 +487,11 @@ def learnScreen():
     
     
     # Initialise images
-    dfsImage = pygame.image.load(os.path.join("assets", "dfs.png")).convert_alpha()
-    bfsImage = pygame.image.load(os.path.join("assets", "bfs.png")).convert_alpha()
-    mazeImage = pygame.image.load(os.path.join("assets", "maze.png")).convert_alpha()
-    dijkstraImage = pygame.image.load(os.path.join("assets", "dijkstra.png")).convert_alpha()
-    astarImage = pygame.image.load(os.path.join("assets", "astar.png")).convert_alpha()
+    dfsImage = pygame.image.load(os.path.join(base, "assets", "dfs.png")).convert_alpha()
+    bfsImage = pygame.image.load(os.path.join(base, "assets", "bfs.png")).convert_alpha()
+    mazeImage = pygame.image.load(os.path.join(base, "assets", "maze.png")).convert_alpha()
+    dijkstraImage = pygame.image.load(os.path.join(base, "assets", "dijkstra.png")).convert_alpha()
+    astarImage = pygame.image.load(os.path.join(base, "assets", "astar.png")).convert_alpha()
     
     
     running = True
