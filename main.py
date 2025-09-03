@@ -91,8 +91,8 @@ def mainScreen():
     
     # top row button initialisation
     back = Button(70, 70, BLACK, "  BACK ", 20, WHITE, "back button")
-    gridSizeCyclic = Cyclic(90, 70, BLUE, 15, BLACK, {gridSize.SMALL : "   GRID SIZE   \n      SMALL", gridSize.MEDIUM : "   GRID SIZE   \n    MEDIUM", gridSize.LARGE: "   GRID SIZE   \n      LARGE"}, "grid size")
-    speedCyclic = Cyclic(90, 70, BLUE, 15, BLACK, {Speed.FAST: " ANIMATION   \n        FAST", Speed.SLOW : " ANIMATION   \n      SLOW", Speed.MEDIUM : " ANIMATION   \n    MEDIUM"}, "animation speed")
+    gridSizeCyclic = Cyclic(90, 70, PURPLE, 15, WHITE, {gridSize.SMALL : "   GRID SIZE   \n      SMALL", gridSize.MEDIUM : "   GRID SIZE   \n    MEDIUM", gridSize.LARGE: "   GRID SIZE   \n      LARGE"}, "grid size")
+    speedCyclic = Cyclic(90, 70, PURPLE, 15, WHITE, {Speed.FAST: " ANIMATION   \n        FAST", Speed.SLOW : " ANIMATION   \n      SLOW", Speed.MEDIUM : " ANIMATION   \n    MEDIUM"}, "animation speed")
     dfsButton = Button(90, 70, BLUE, "      DEPTH\n       FIRST\n     SEARCH", 15, BLACK, "DFS button")
     bfsButton = Button(90, 70, BLUE, "   BREADTH\n       FIRST\n     SEARCH", 15, BLACK, "BFS button")
     dijkstraButton = Button(90, 70, BLUE, "  DIJKSTRA'S\n ALGORITHM", 15, BLACK, "dijkstra's button")
@@ -113,8 +113,8 @@ def mainScreen():
     lavaButton = Button(90, 30, ORANGE, "    LAVA (50)", 15, BLACK, "lava")
 
     running = True
+    frame_counter = 0
     while running:
-
         # Draw elements here
         screen.fill(GREY)
         
@@ -163,10 +163,8 @@ def mainScreen():
                 running = False
                 return Screen.QUIT
             
-            if uiGrid.eventOccurence(event):
-                clicked, button = uiGrid.clickedCell()
-                print(f"{clicked} was clicked.")
-                uiGrid.reset()
+            if uiGrid.eventOccurence(event)[0] and frame_counter > 10:
+                clicked, button = uiGrid.eventOccurence(event)[1], uiGrid.eventOccurence(event)[2]
                 if button == 3 and clicked != backendGrid.getStart() and clicked != backendGrid.getEnd():
                     uiGrid.changeColour(clicked[0], clicked[1], GREY)
                     backendGrid.insertValue(0, clicked[0], clicked[1])
@@ -453,81 +451,52 @@ def mainScreen():
         pygame.display.update()
         
         clock.tick(60)
+        frame_counter += 1
+        
         
     return
-    
-def learnScreen():
+
+def astarScreen():
     clock = pygame.time.Clock()
     
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     
     # Set a screen caption
     pygame.display.set_caption("Pathfinding Visualiser - Learn")
     
-    # get text from .txt files for each algorithm
-    base = os.path.dirname(os.path.abspath(__file__))
-    dfsText = open(os.path.join(base, "algorithmtext", "dfs.txt"), "r", encoding="utf-8").readline()
-    bfsText = open(os.path.join(base, "algorithmtext", "bfs.txt"), "r", encoding="utf-8").readline()
-    dijkstraText = open(os.path.join(base, "algorithmtext", "dijkstra.txt"), "r", encoding="utf-8").readline()
-    astarText = open(os.path.join(base, "algorithmtext", "astar.txt"), "r", encoding="utf-8").readline()
+    
     
     # Initialise elements
     learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLUE)
     back = Button(70, 70, BLACK, "  BACK ", 20, WHITE, "back button")
-    dfsTitle = Label(0, 0, GREY, "Depth-First Search", 30, BLUE, autoSize=True)
-    bfsTitle = Label(0, 0, GREY, "Breadth-First Search", 30, BLUE, autoSize=True)
-    dijkstraTitle = Label(0, 0, GREY, "Dijkstra's Algorithm", 30, BLUE, autoSize=True)
-    astarTitle = Label(0, 0, GREY, "A* algorithm", 30, BLUE, autoSize=True)
-    dfsParagraph = Label(610, 100, GREY, fill(dfsText, 96), 14, BLUE)
-    bfsParagraph = Label(610, 100, GREY, fill(bfsText, 93), 14, BLUE)
-    dijkstraParagraph = Label(290, 260, GREY, fill(dijkstraText, 50), 13, BLUE)
-    dijkstraLink = Button(240, 40, GREY, "Learn more about Dijkstra's algorithm by\nclicking on this link.", 13, BLUE, "dijkstra link")
-    astarParagraph = Label(290, 260, GREY, fill(astarText, 55), 13, BLUE)
-    astarLink = Button(220, 40, GREY, "Learn more about A* algorithm by\nclicking on this link.", 13, BLUE, "a star link")
     
     
-    # Initialise images
-    dfsImage = pygame.image.load(os.path.join(base, "assets", "dfs.png")).convert_alpha()
-    bfsImage = pygame.image.load(os.path.join(base, "assets", "bfs.png")).convert_alpha()
-    mazeImage = pygame.image.load(os.path.join(base, "assets", "maze.png")).convert_alpha()
-    dijkstraImage = pygame.image.load(os.path.join(base, "assets", "dijkstra.png")).convert_alpha()
-    astarImage = pygame.image.load(os.path.join(base, "assets", "astar.png")).convert_alpha()
+    astarParagraph = Label(620, 300, BLACK, fill(astarText, 65), 25, BLUE)
+    astarLink = Link(600, 40, BLACK, "Learn more about A* algorithm by clicking on this link.", 25, BLUE, "a star link")
+    
+    dfsTab = Button(308, 70, BLUE, "    Depth-First Search", 30, BLACK, autoSize=False,identification="dfs tab")
+    bfsTab = Button(308, 70, BLUE, "   Breadth-First Search", 30, BLACK, autoSize=False, identification="bfs tab")
+    dijkstraTab = Button(307, 70, BLUE, "   Dijkstra's Algorithm", 30, BLACK, autoSize=False, identification="dijkstra tab")
+    astarTab = Label(307, 70, BLACK, "        A* Algorithm", 30, BLUE, autoSize=False)
     
     
     running = True
     while running:
         
-        
         # Draw elements
         screen.fill(GREY)
         back.draw(screen, 10, 10, normalised=False, offset=20)
         learnTitle.draw(screen, 140, 10, normalised=False)
-        dfsTitle.draw(screen, -0.5, 0.69)
-        bfsTitle.draw(screen, 0.5, 0.69)
-        dijkstraTitle.draw(screen, -0.5, -0.165)
-        astarTitle.draw(screen, 0.5, -0.165)
-        dfsParagraph.draw(screen, 30, 130, normalised=False)
-        bfsParagraph.draw(screen, 650, 130, normalised=False)
-        dijkstraParagraph.draw(screen, 330, 440, normalised=False)
-        dijkstraLink.draw(screen, 330, 660, normalised=False)
-        astarParagraph.draw(screen, 930, 440, normalised=False)
-        astarLink.draw(screen, 930, 660, normalised=False)
-
+        dfsTab.draw(screen, 10, 90, normalised=False, offset=14)
+        bfsTab.draw(screen, 327, 90, normalised=False, offset=14)
+        dijkstraTab.draw(screen, 645, 90, normalised=False, offset=14)
+        astarTab.draw(screen, 964, 90, normalised=False, offset=14)
+        # Backdrop
+        pygame.draw.rect(screen, BLACK, (10, 170, 1260, 540), 0, 12)
         
-        # Draw images and scale at the same time
-        screen.blit(pygame.transform.scale(dijkstraImage, (290, 260)), (20, 440))
-        screen.blit(pygame.transform.scale(astarImage, (270, 260)), (650, 440))
-        screen.blit(pygame.transform.scale(dfsImage, (190, 130)), (30, 260))
-        screen.blit(pygame.transform.scale(mazeImage, (400, 130)), (230, 260))
-        screen.blit(pygame.transform.scale(bfsImage, (220, 130)), (855, 260))
+        astarParagraph.draw(screen, 540, 190, normalised=False)
+        astarLink.draw(screen, 540, 550, normalised=False)
         
-        
-        # Draw borders for rectangles
-        pygame.draw.rect(screen, BLACK, (10, 90, 630, 310), 2)
-        pygame.draw.rect(screen, BLACK, (10, 400, 630, 310), 2)
-        pygame.draw.rect(screen, BLACK, (640, 90, 630, 310), 2)
-        pygame.draw.rect(screen, BLACK, (640, 400, 630, 310), 2)
-        pygame.draw.rect(screen, BLACK, (10, 90, 1260, 620), 4)
+        screen.blit(pygame.transform.scale(astarImage, (500, 500)), (30, 190))
         
         # Event handling
         for event in pygame.event.get():
@@ -538,20 +507,230 @@ def learnScreen():
             if back.eventOccurence(event):
                 return Screen.ENTRYSCREEN
             
-            if dijkstraLink.eventOccurence(event):
-                webbrowser.open("https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#:~:text=Dijkstra's%20algorithm%20finds%20the%20shortest,path%20to%20the%20destination%20node.")
-                dijkstraLink.reset()
+            if dfsTab.eventOccurence(event):
+                return Screen.DFS_SCREEN
+            
+            if bfsTab.eventOccurence(event):
+                return Screen.BFS_SCREEN
+            
+            if dijkstraTab.eventOccurence(event):
+                return Screen.DIJKSTRA_SCREEN
             
             if astarLink.eventOccurence(event):
-                webbrowser.open("https://en.wikipedia.org/wiki/A*_search_algorithm")
+                webbrowser.open("https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#:~:text=Dijkstra's%20algorithm%20finds%20the%20shortest,path%20to%20the%20destination%20node.")
                 astarLink.reset()
-            
-            
+        
+        
         pygame.display.update()
         clock.tick(60)
     
     return
+
+def dijkstraScreen():
+    clock = pygame.time.Clock()
+    
+    
+    # Set a screen caption
+    pygame.display.set_caption("Pathfinding Visualiser - Learn")
+    
+    
+    
+    # Initialise elements
+    learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLUE)
+    back = Button(70, 70, BLACK, "  BACK ", 20, WHITE, "back button")
+    
+    dijkstraParagraph = Label(620, 300, BLACK, fill(dijkstraText, 65), 25, BLUE)
+    dijkstraLink = Link(680, 40, BLACK, "Learn more about Dijkstra's algorithm by clicking on this link.", 25, BLUE, "dijkstra link")
+    
+    dfsTab = Button(308, 70, BLUE, "    Depth-First Search", 30, BLACK, autoSize=False,identification="dfs tab")
+    bfsTab = Button(308, 70, BLUE, "   Breadth-First Search", 30, BLACK, autoSize=False, identification="bfs tab")
+    dijkstraTab = Label(307, 70, BLACK, "   Dijkstra's Algorithm", 30, BLUE, autoSize=False)
+    astarTab = Button(307, 70, BLUE, "        A* Algorithm", 30, BLACK, autoSize=False, identification="a star tab")
+    
+    
+    
+    running = True
+    while running:
         
+        # Draw elements
+        screen.fill(GREY)
+        back.draw(screen, 10, 10, normalised=False, offset=20)
+        learnTitle.draw(screen, 140, 10, normalised=False)
+        dfsTab.draw(screen, 10, 90, normalised=False, offset=14)
+        bfsTab.draw(screen, 327, 90, normalised=False, offset=14)
+        dijkstraTab.draw(screen, 645, 90, normalised=False, offset=14)
+        astarTab.draw(screen, 964, 90, normalised=False, offset=14)
+        # Backdrop
+        pygame.draw.rect(screen, BLACK, (10, 170, 1260, 540), 0, 12)
+        
+        dijkstraParagraph.draw(screen, 540, 190, normalised=False)
+        dijkstraLink.draw(screen, 540, 520, normalised=False)
+        
+        screen.blit(pygame.transform.scale(dijkstraImage, (500, 500)), (30, 190))
+        
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                return Screen.QUIT
+            
+            if back.eventOccurence(event):
+                return Screen.ENTRYSCREEN
+            
+            if dfsTab.eventOccurence(event):
+                return Screen.DFS_SCREEN
+            
+            if bfsTab.eventOccurence(event):
+                return Screen.BFS_SCREEN
+            
+            if astarTab.eventOccurence(event):
+                return Screen.ASTAR_SCREEN
+            
+            if dijkstraLink.eventOccurence(event):
+                webbrowser.open("https://en.wikipedia.org/wiki/Dijkstra%27s_algorithm#:~:text=Dijkstra's%20algorithm%20finds%20the%20shortest,path%20to%20the%20destination%20node.")
+                dijkstraLink.reset()
+        
+        pygame.display.update()
+        clock.tick(60)
+    
+    return
+
+def bfsScreen():
+    clock = pygame.time.Clock()
+    
+    
+    # Set a screen caption
+    pygame.display.set_caption("Pathfinding Visualiser - Learn")
+    
+    
+    
+    # Initialise elements
+    learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLUE)
+    back = Button(70, 70, BLACK, "  BACK ", 20, WHITE, "back button")
+    bfsParagraph = Label(620, 300, BLACK, fill(bfsText, 65), 25, BLUE)
+    dfsTab = Button(308, 70, BLUE, "    Depth-First Search", 30, BLACK, autoSize=False,identification="dfs tab")
+    bfsTab = Label(308, 70, BLACK, "   Breadth-First Search", 30, BLUE, autoSize=False)
+    dijkstraTab = Button(307, 70, BLUE, "   Dijkstra's Algorithm", 30, BLACK, autoSize=False, identification="dijkstra tab")
+    astarTab = Button(307, 70, BLUE, "        A* Algorithm", 30, BLACK, autoSize=False, identification="a star tab")
+    bfsLink = Link(530, 40, BLACK, "Learn more about BFS by clicking on this link.", 25, BLUE, "link for bfs", autoSize=False)
+    
+    
+    
+    running = True
+    while running:
+        
+        # Draw elements
+        screen.fill(GREY)
+        back.draw(screen, 10, 10, normalised=False, offset=20)
+        learnTitle.draw(screen, 140, 10, normalised=False)
+        dfsTab.draw(screen, 10, 90, normalised=False, offset=14)
+        bfsTab.draw(screen, 327, 90, normalised=False, offset=14)
+        dijkstraTab.draw(screen, 645, 90, normalised=False, offset=14)
+        astarTab.draw(screen, 964, 90, normalised=False, offset=14)
+        # Backdrop
+        pygame.draw.rect(screen, BLACK, (10, 170, 1260, 540), 0, 12)
+        
+        bfsParagraph.draw(screen, 540, 190, normalised=False)
+        bfsLink.draw(screen, 540, 550, normalised=False)
+        
+        screen.blit(pygame.transform.scale(bfsImage, (500, 500)), (30, 190))
+        
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                return Screen.QUIT
+            
+            if back.eventOccurence(event):
+                return Screen.ENTRYSCREEN
+            
+            if dfsTab.eventOccurence(event):
+                return Screen.DFS_SCREEN
+            
+            if dijkstraTab.eventOccurence(event):
+                return Screen.DIJKSTRA_SCREEN
+            
+            if astarTab.eventOccurence(event):
+                return Screen.ASTAR_SCREEN
+            
+            if bfsLink.eventOccurence(event):
+                webbrowser.open("https://en.wikipedia.org/wiki/Breadth-first_search")
+                bfsLink.reset()
+        
+        pygame.display.update()
+        clock.tick(60)
+    
+    return
+
+def dfsScreen():
+    clock = pygame.time.Clock()
+    
+    
+    # Set a screen caption
+    pygame.display.set_caption("Pathfinding Visualiser - Learn")
+    
+    
+    
+    # Initialise elements
+    learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLUE)
+    back = Button(70, 70, BLACK, "  BACK ", 20, WHITE, "back button")
+    dfsParagraph = Label(1240, 300, BLACK, fill(dfsText, 100), 28, BLUE)
+    dfsTab = Label(308, 70, BLACK, "    Depth-First Search", 30, BLUE, autoSize=False)
+    bfsTab = Button(308, 70, BLUE, "   Breadth-First Search", 30, BLACK, autoSize=False, identification="bfs tab")
+    dijkstraTab = Button(307, 70, BLUE, "   Dijkstra's Algorithm", 30, BLACK, autoSize=False, identification="dijkstra tab")
+    astarTab = Button(307, 70, BLUE, "        A* Algorithm", 30, BLACK, autoSize=False, identification="a star tab")
+    dfsLink = Link(530, 40, BLACK, "Learn more about DFS by clicking on this link.", 26, BLUE, "link for dfs", autoSize=False)
+    
+    
+    
+    running = True
+    while running:
+        
+        # Draw elements
+        screen.fill(GREY)
+        back.draw(screen, 10, 10, normalised=False, offset=20)
+        learnTitle.draw(screen, 140, 10, normalised=False)
+        dfsTab.draw(screen, 10, 90, normalised=False, offset=14)
+        bfsTab.draw(screen, 327, 90, normalised=False, offset=14)
+        dijkstraTab.draw(screen, 645, 90, normalised=False, offset=14)
+        astarTab.draw(screen, 964, 90, normalised=False, offset=14)
+        # Backdrop
+        pygame.draw.rect(screen, BLACK, (10, 170, 1260, 540), 0, 12)
+        
+        dfsParagraph.draw(screen, 15, 175, normalised=False)
+        dfsLink.draw(screen, 722, 399, normalised=False)
+        
+        screen.blit(pygame.transform.scale(dfsImage, (400, 250)), (30, 450))
+        screen.blit(pygame.transform.scale(mazeImage, (800, 250)), (460, 450))
+        
+        # Event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+                return Screen.QUIT
+            
+            if back.eventOccurence(event):
+                return Screen.ENTRYSCREEN
+            
+            if bfsTab.eventOccurence(event):
+                return Screen.BFS_SCREEN
+            
+            if dijkstraTab.eventOccurence(event):
+                return Screen.DIJKSTRA_SCREEN
+            
+            if astarTab.eventOccurence(event):
+                return Screen.ASTAR_SCREEN
+            
+            if dfsLink.eventOccurence(event):
+                webbrowser.open("https://en.wikipedia.org/wiki/Depth-first_search")
+                dfsLink.reset()
+        
+        pygame.display.update()
+        clock.tick(60)
+    
+    return
+
+
 
 def entryScreen():
     clock = pygame.time.Clock()
@@ -586,8 +765,7 @@ def entryScreen():
                 
                 
             if learn.eventOccurence(event):
-                return Screen.LEARNSCREEN
-                learn.reset()
+                return Screen.DFS_SCREEN
         
                 
         pygame.display.update()
@@ -602,15 +780,35 @@ if __name__ == "__main__":
     SCREEN_WIDTH = 1280
     SCREEN_HEIGHT = 720
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    
+    # Initialise images
+    
+    base = os.path.dirname(os.path.abspath(__file__))
+    dfsImage = pygame.image.load(os.path.join(base, "assets", "dfs.png")).convert_alpha()
+    mazeImage = pygame.image.load(os.path.join(base, "assets", "maze.png")).convert_alpha()
+    bfsImage = pygame.image.load(os.path.join(base, "assets", "bfs.png")).convert_alpha()
+    dijkstraImage = pygame.image.load(os.path.join(base, "assets", "dijkstra.png")).convert_alpha()
+    astarImage = pygame.image.load(os.path.join(base, "assets", "astar.png")).convert_alpha()
+    
+    # get text from .txt files for each algorithm
+    
+    dfsText = open(os.path.join(base, "algorithmtext", "dfs.txt"), "r", encoding="utf-8").readline()
+    bfsText = open(os.path.join(base, "algorithmtext", "bfs.txt"), "r", encoding="utf-8").readline()
+    dijkstraText = open(os.path.join(base, "algorithmtext", "dijkstra.txt"), "r", encoding="utf-8").readline()
+    astarText = open(os.path.join(base, "algorithmtext", "astar.txt"), "r", encoding="utf-8").readline()
 
     # Screen states
     class Screen(Enum):
         QUIT = auto()
         ENTRYSCREEN = auto()
         MAINSCREEN = auto()
-        LEARNSCREEN = auto()
+        DFS_SCREEN = auto()
+        BFS_SCREEN = auto()
+        DIJKSTRA_SCREEN = auto()
+        ASTAR_SCREEN = auto()
         
     pygame.init()
+    
     
     # Program starts with entry screen
     currentScreen = Screen.ENTRYSCREEN
@@ -620,8 +818,15 @@ if __name__ == "__main__":
                 currentScreen = entryScreen()
             case Screen.MAINSCREEN:
                 currentScreen = mainScreen()
-            case Screen.LEARNSCREEN:
-                currentScreen = learnScreen()
+            case Screen.DFS_SCREEN:
+                currentScreen = dfsScreen()
+            case Screen.BFS_SCREEN:
+                currentScreen = bfsScreen()
+            case Screen.DIJKSTRA_SCREEN:
+                currentScreen = dijkstraScreen()
+            case Screen.ASTAR_SCREEN:
+                currentScreen = astarScreen()
+                
         
 
     # Quit Pygame if user ever presses quit button     

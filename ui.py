@@ -239,20 +239,19 @@ class Cell():
     def eventOccurence(self, event):
         mousePos = pygame.mouse.get_pos()
         if self.box.collidepoint(mousePos):
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not self.pressed:
-                self.pressed = True
+            if pygame.mouse.get_pressed()[0]:
                 self.button = 1
                 return True
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 3 and not self.pressed:
-                self.pressed = True
+            elif pygame.mouse.get_pressed()[2]:
                 self.button = 3
                 return True
         
     
-    def isClicked(self):
-        if self.pressed:
-            return True
-        return False
+    # NOW REDUNDANT CODE DUE TO MOUSE DRAGGING LOGIC
+    # def isClicked(self):
+    #     if self.pressed:
+    #         return True
+    #     return False
     
     def getId(self):
         return self.identification
@@ -260,9 +259,10 @@ class Cell():
     def getButton(self):
         return self.button
     
-    # Call this right after checking for click
-    def reset(self):
-        self.pressed = False
+    # NOW REDUNDANT CODE DUE TO MOUSE DRAGGING LOGIC
+    # # Call this right after checking for click
+    # def reset(self):
+    #     self.pressed = False
     
     def changeColour(self, newColour):
         self.colour = newColour
@@ -295,18 +295,20 @@ class UIGrid():
         for row in self.grid:
             for cell in row:
                 if cell.eventOccurence(event):
-                    return True
+                    return (True, cell.getId(), cell.getButton())
+        return (False, None, None)
     
-    def clickedCell(self):
-        for row in self.grid:
-            for cell in row:
-                if cell.isClicked():
-                    return cell.getId(), cell.getButton()
+    # NOW REDUNDANT CODE DUE TO MOUSE DRAGGING LOGIC
+    # def clickedCell(self):
+    #     for row in self.grid:
+    #         for cell in row:
+    #             if cell.isClicked():
+    #                 return cell.getId(), cell.getButton()
     
-    def reset(self):
-        for row in self.grid:
-            for cell in row:
-                cell.reset()
+    # def reset(self):
+    #     for row in self.grid:
+    #         for cell in row:
+    #             cell.reset()
     
     def changeColour(self, x, y, colour):
         cell = self.grid[y][x]
@@ -394,3 +396,57 @@ class UIGrid():
             pygame.time.delay(delay)
             pygame.display.update()
         
+class Link(Label):
+    def __init__(self, width, height, colour, text, textSize, textColour, identification, autoSize=False):
+        super().__init__(width, height, colour, text, textSize, textColour, autoSize=autoSize)
+        self.identification = identification
+        self.originalColour = colour
+        self.pressed = False
+        self.font.set_underline(True)
+        
+    def getId(self):
+        return self.identification
+    
+    def draw(self, surface, x, y, normalised=True, offset=0):
+        lines = self.text.split("\n")
+        textImgs = []
+        imgWidths = []
+        imgHeights = []
+        for line in lines:
+            render = self.font.render(line, True, self.textColour)
+            scaled_render = pygame.transform.smoothscale(render, (render.get_width() // 4, render.get_height() // 4))
+            textImgs.append(scaled_render)
+            imgWidths.append(scaled_render.get_width())
+            imgHeights.append(scaled_render.get_height())
+        # Auto set the width and height of the box around the text. May need to add padding to this.
+        if self.autoSize:
+            self.width = max(imgWidths)
+            self.height = sum(imgHeights)
+        if normalised:
+            true_x, true_y = normalisedToScreen(x, y, self.width, self.height)
+        else:
+            true_x, true_y = x, y
+        self.box = pygame.Rect(true_x, true_y, self.width, self.height)
+        pygame.draw.rect(surface, self.colour, self.box, 0, 12)
+        heightCounter = true_y + offset
+        for l, line in enumerate(textImgs):
+            height = imgHeights[l]
+            surface.blit(line, (true_x, heightCounter))
+            heightCounter += height
+    
+    # handle a click and hover
+    def eventOccurence(self, event):
+        self.colour = self.originalColour
+        mousePos = pygame.mouse.get_pos()
+        if self.box.collidepoint(mousePos):
+            self.colour = lighten(self.originalColour)
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not self.pressed:
+                self.pressed = True
+                return True
+        
+    # Call this right after checking for click
+    def reset(self):
+        self.pressed = False
+    
+    def updateText(self, newText):
+        self.text = newText
