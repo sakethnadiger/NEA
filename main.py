@@ -2,6 +2,7 @@ import pygame
 import webbrowser
 import os
 from textwrap import fill
+import datetime
 from ui import *
 from grid import Grid
 from dfs import DFS
@@ -132,7 +133,7 @@ def mainScreen():
                 messageString += f" [{index + 1}] " + messageQueue[index] + "\n"
             terminal.updateText(" " + messageString.strip())
         else:
-            terminal.updateText(" Welcome to the animation screen. Add obstacles and weights, and view algorithm traversal in real time.")
+            terminal.updateText(" Welcome to the animation screen.\n Add obstacles and weights by left clicking on the grid and remove them by right clicking. (Note: the last weight/obstacle you clicked will be the one added)\n View algorithm traversal in real time (Note: avoid clicking other buttons during animation as this will cause unresponsiveness) and see their associated metrics here.")
         
         # top row button drawing
         back.draw(screen, 10, 10, normalised=False, offset=20)
@@ -227,7 +228,11 @@ def mainScreen():
                         messageQueue.append(message)
                         tailPointer += 1
                 else:
-                    message = f"DFS completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells."
+                    startAnimation = datetime.datetime.now()
+                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                    endAnimation = datetime.datetime.now()
+                    timeDelta = endAnimation - startAnimation
+                    message = f"DFS run on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells."
                     print(message)
                     if len(messageQueue) >= 3:
                         messageQueue.append(message)
@@ -236,7 +241,7 @@ def mainScreen():
                     else:
                         messageQueue.append(message)
                         tailPointer += 1
-                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                    
             
             if bfsButton.eventOccurence(event):
                 # Need to reset grid to only obstacles and weights
@@ -256,7 +261,11 @@ def mainScreen():
                         messageQueue.append(message)
                         tailPointer += 1
                 else:
-                    message = f"BFS completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells."
+                    startAnimation = datetime.datetime.now()
+                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                    endAnimation = datetime.datetime.now()
+                    timeDelta = endAnimation - startAnimation
+                    message = f"BFS run on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells."
                     print(message)
                     if len(messageQueue) >= 3:
                         messageQueue.append(message)
@@ -265,7 +274,6 @@ def mainScreen():
                     else:
                         messageQueue.append(message)
                         tailPointer += 1
-                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
             
             if dijkstraButton.eventOccurence(event):
                 # Need to reset grid to only obstacles and weights
@@ -285,7 +293,11 @@ def mainScreen():
                         messageQueue.append(message)
                         tailPointer += 1
                 else:
-                    message = f"Dijkstra's algorithm completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
+                    startAnimation = datetime.datetime.now()
+                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                    endAnimation = datetime.datetime.now()
+                    timeDelta = endAnimation - startAnimation
+                    message = f"Dijkstra's algorithm run on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
                     print(message)
                     if len(messageQueue) >= 3:
                         messageQueue.append(message)
@@ -294,7 +306,6 @@ def mainScreen():
                     else:
                         messageQueue.append(message)
                         tailPointer += 1
-                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
             
             if astarCyclic.eventOccurence(event):
                 astarCyclic.reset()
@@ -319,7 +330,11 @@ def mainScreen():
                             messageQueue.append(message)
                             tailPointer += 1
                     else:
-                        message = f"{heuristic} A* algorithm completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
+                        startAnimation = datetime.datetime.now()
+                        uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                        endAnimation = datetime.datetime.now()
+                        timeDelta = endAnimation - startAnimation
+                        message = f"{heuristic} A* algorithm run on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
                         print(message)
                         if len(messageQueue) >= 3:
                             messageQueue.append(message)
@@ -329,7 +344,6 @@ def mainScreen():
                             messageQueue.append(message)
                             tailPointer += 1
                         
-                        uiGrid.displayCells(discovered, path, timeDelay, start, end)
                 else:
                     # Need to reset grid to only obstacles and weights
                     uiGrid.backendToFrontendColour(backendGrid.getArray())
@@ -346,7 +360,11 @@ def mainScreen():
                             messageQueue.append(message)
                             tailPointer += 1
                     else:
-                        message = f"{heuristic} A* algorithm completed in {time}ms, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
+                        startAnimation = datetime.datetime.now()
+                        uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                        endAnimation = datetime.datetime.now()
+                        timeDelta = endAnimation - startAnimation
+                        message = f"{heuristic} A* algorithm run on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
                         print(message)
                         if len(messageQueue) >= 3:
                             messageQueue.append(message)
@@ -355,7 +373,6 @@ def mainScreen():
                         else:
                             messageQueue.append(message)
                             tailPointer += 1
-                        uiGrid.displayCells(discovered, path, timeDelay, start, end)
                 
             
             if mazeButton.eventOccurence(event):
@@ -383,10 +400,13 @@ def mainScreen():
                 # Fill grid with obstacles for visualisation
                 uiGrid.fillGrid()
                 discovered, time = backendGrid.generateMaze()
+                startAnimation = datetime.datetime.now()
                 uiGrid.changeColour(backendGrid.getStart()[0], backendGrid.getStart()[1], GREEN)
                 uiGrid.changeColour(backendGrid.getEnd()[0], backendGrid.getEnd()[1], RED)
                 uiGrid.carveMaze(discovered, GREY, timeDelay, backendGrid.getStart(), backendGrid.getEnd())
-                message = f"DFS maze generated in {time}ms, visited {len(discovered)} cells."
+                endAnimation = datetime.datetime.now()
+                timeDelta = endAnimation - startAnimation
+                message = f"DFS maze generated on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells."
                 if len(messageQueue) >= 3:
                     messageQueue.append(message)
                     headPointer += 1
@@ -466,7 +486,7 @@ def astarScreen():
     
     
     # Initialise elements
-    learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLUE)
+    learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLACK)
     back = Button(70, 70, BLACK, "  BACK ", 20, WHITE, "back button")
     
     
@@ -536,7 +556,7 @@ def dijkstraScreen():
     
     
     # Initialise elements
-    learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLUE)
+    learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLACK)
     back = Button(70, 70, BLACK, "  BACK ", 20, WHITE, "back button")
     
     dijkstraParagraph = Label(620, 300, BLACK, fill(dijkstraText, 65), 25, BLUE)
@@ -605,7 +625,7 @@ def bfsScreen():
     
     
     # Initialise elements
-    learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLUE)
+    learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLACK)
     back = Button(70, 70, BLACK, "  BACK ", 20, WHITE, "back button")
     bfsParagraph = Label(620, 300, BLACK, fill(bfsText, 65), 25, BLUE)
     dfsTab = Button(308, 70, BLUE, "    Depth-First Search", 30, BLACK, autoSize=False,identification="dfs tab")
@@ -672,7 +692,7 @@ def dfsScreen():
     
     
     # Initialise elements
-    learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLUE)
+    learnTitle = Label(1000, 70, GREY, "  Learn more about how the algorithms work", 50, BLACK)
     back = Button(70, 70, BLACK, "  BACK ", 20, WHITE, "back button")
     dfsParagraph = Label(1240, 300, BLACK, fill(dfsText, 100), 28, BLUE)
     dfsTab = Label(308, 70, BLACK, "    Depth-First Search", 30, BLUE, autoSize=False)

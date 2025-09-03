@@ -395,7 +395,8 @@ class UIGrid():
             self.changeColour(cell[0], cell[1], colour)
             pygame.time.delay(delay)
             pygame.display.update()
-        
+            
+
 class Link(Label):
     def __init__(self, width, height, colour, text, textSize, textColour, identification, autoSize=False):
         super().__init__(width, height, colour, text, textSize, textColour, autoSize=autoSize)
