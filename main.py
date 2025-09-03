@@ -232,7 +232,7 @@ def mainScreen():
                     uiGrid.displayCells(discovered, path, timeDelay, start, end)
                     endAnimation = datetime.datetime.now()
                     timeDelta = endAnimation - startAnimation
-                    message = f"DFS run on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells."
+                    message = f"DFS ran on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells."
                     print(message)
                     if len(messageQueue) >= 3:
                         messageQueue.append(message)
@@ -265,7 +265,7 @@ def mainScreen():
                     uiGrid.displayCells(discovered, path, timeDelay, start, end)
                     endAnimation = datetime.datetime.now()
                     timeDelta = endAnimation - startAnimation
-                    message = f"BFS run on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells."
+                    message = f"BFS ran on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells."
                     print(message)
                     if len(messageQueue) >= 3:
                         messageQueue.append(message)
@@ -297,7 +297,7 @@ def mainScreen():
                     uiGrid.displayCells(discovered, path, timeDelay, start, end)
                     endAnimation = datetime.datetime.now()
                     timeDelta = endAnimation - startAnimation
-                    message = f"Dijkstra's algorithm run on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
+                    message = f"Dijkstra's algorithm ran on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
                     print(message)
                     if len(messageQueue) >= 3:
                         messageQueue.append(message)
@@ -334,7 +334,7 @@ def mainScreen():
                         uiGrid.displayCells(discovered, path, timeDelay, start, end)
                         endAnimation = datetime.datetime.now()
                         timeDelta = endAnimation - startAnimation
-                        message = f"{heuristic} A* algorithm run on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
+                        message = f"{heuristic} A* algorithm ran on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
                         print(message)
                         if len(messageQueue) >= 3:
                             messageQueue.append(message)
@@ -364,7 +364,7 @@ def mainScreen():
                         uiGrid.displayCells(discovered, path, timeDelay, start, end)
                         endAnimation = datetime.datetime.now()
                         timeDelta = endAnimation - startAnimation
-                        message = f"{heuristic} A* algorithm run on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
+                        message = f"{heuristic} A* algorithm ran on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
                         print(message)
                         if len(messageQueue) >= 3:
                             messageQueue.append(message)
