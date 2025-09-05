@@ -618,10 +618,8 @@ def dijkstraScreen():
 def bfsScreen():
     clock = pygame.time.Clock()
     
-    
     # Set a screen caption
     pygame.display.set_caption("Pathfinding Visualiser - Learn")
-    
     
     
     # Initialise elements
@@ -794,9 +792,12 @@ def entryScreen():
         
     return
 
+
+# Main program routine
 if __name__ == "__main__":
     
     # Unresizable screen dimensions
+    
     SCREEN_WIDTH = 1280
     SCREEN_HEIGHT = 720
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -828,7 +829,6 @@ if __name__ == "__main__":
         ASTAR_SCREEN = auto()
         
     pygame.init()
-    
     
     # Program starts with entry screen
     currentScreen = Screen.ENTRYSCREEN
