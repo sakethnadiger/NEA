@@ -516,7 +516,7 @@ def astarScreen():
         astarParagraph.draw(screen, 540, 190, normalised=False)
         astarLink.draw(screen, 540, 550, normalised=False)
         
-        screen.blit(pygame.transform.scale(astarImage, (500, 500)), (30, 190))
+        screen.blit(pygame.transform.smoothscale(astarImage, (500, 500)), (30, 190))
         
         # Event handling
         for event in pygame.event.get():
@@ -586,7 +586,7 @@ def dijkstraScreen():
         dijkstraParagraph.draw(screen, 540, 190, normalised=False)
         dijkstraLink.draw(screen, 540, 520, normalised=False)
         
-        screen.blit(pygame.transform.scale(dijkstraImage, (500, 500)), (30, 190))
+        screen.blit(pygame.transform.smoothscale(dijkstraImage, (500, 500)), (30, 190))
         
         # Event handling
         for event in pygame.event.get():
@@ -651,7 +651,7 @@ def bfsScreen():
         bfsParagraph.draw(screen, 540, 190, normalised=False)
         bfsLink.draw(screen, 540, 550, normalised=False)
         
-        screen.blit(pygame.transform.scale(bfsImage, (500, 500)), (30, 190))
+        screen.blit(pygame.transform.smoothscale(bfsImage, (500, 500)), (30, 190))
         
         # Event handling
         for event in pygame.event.get():
@@ -718,8 +718,8 @@ def dfsScreen():
         dfsParagraph.draw(screen, 15, 175, normalised=False)
         dfsLink.draw(screen, 722, 399, normalised=False)
         
-        screen.blit(pygame.transform.scale(dfsImage, (400, 250)), (30, 450))
-        screen.blit(pygame.transform.scale(mazeImage, (800, 250)), (460, 450))
+        screen.blit(pygame.transform.smoothscale(dfsImage, (400, 250)), (30, 450))
+        screen.blit(pygame.transform.smoothscale(mazeImage, (800, 250)), (460, 450))
         
         # Event handling
         for event in pygame.event.get():
