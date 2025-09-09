@@ -35,6 +35,7 @@ def mainScreen():
         ROCK = auto()
         LAVA = auto()
         
+        
     colourCodes = {
             Insert.GRASS : GRASSGREEN,
             Insert.WATER : WATERBLUE,
@@ -75,6 +76,7 @@ def mainScreen():
     curGridSize = gridSize.SMALL
     curSpeed = Speed.FAST
     curInsert = Insert.OBSTACLE
+    translucency = False
     
     timeDelay = speedVals[curSpeed]
     
@@ -85,10 +87,11 @@ def mainScreen():
     
     # Initialise all elements here
     uiGrid = UIGrid(gridSizeVals[curGridSize][0], gridSizeVals[curGridSize][1], gridSizeVals[curGridSize][2])
-    terminal = Label(1260, 70, BLACK, "", 15, WHITE)
+    terminal = Label(1165, 70, BLACK, "", 15, WHITE)
     messageQueue = []
     headPointer = 0
     tailPointer = 0
+    
     
     # top row button initialisation
     back = Button(70, 70, BLACK, "  BACK ", 20, WHITE, "back button")
@@ -101,8 +104,9 @@ def mainScreen():
     astarRun = Button(91, 30, BLUE, "      Run A*", 15, BLACK, "run a star button")
     mazeButton = Button(89, 70, BLUE, "  GENERATE\n      MAZE", 15, BLACK, "maze button")
     randomWeightButton = Button(85, 70, PURPLE, " RANDOMISE\n   WEIGHTS", 14, WHITE, "random weights")
-    resetGridButton = Button(85, 30, RED, " RESET GRID", 15, BLACK, "reset grid")
-    resetPathButton = Button(85, 30, RED, " RESET PATH", 15, BLACK, "reset path")
+    translucencyCyclic = Cyclic(85, 70, PURPLE, 15, WHITE, {False : "   OPAQUE\n      CELLS", True: "     TINTED\n      CELLS"}, "translucency button")
+    resetGridButton = Button(85, 30, RED, "CLEAR GRID", 15, BLACK, "clear grid")
+    resetPathButton = Button(85, 30, RED, "CLEAR PATH", 15, BLACK, "clear path")
     
     
     # Weight buttons
@@ -146,8 +150,9 @@ def mainScreen():
         astarRun.draw(screen, 590, 10, normalised=False, offset=5)
         mazeButton.draw(screen, 691, 10, normalised=False, offset=15)
         randomWeightButton.draw(screen, 1090, 10, normalised=False, offset=17)
-        resetGridButton.draw(screen, 1185, 10, normalised=False, offset=5)
-        resetPathButton.draw(screen, 1185, 50, normalised=False, offset=5)
+        translucencyCyclic.draw(screen, 1185, 10, normalised=False, offset=15)
+        resetGridButton.draw(screen, 1185, 90, normalised=False, offset=5)
+        resetPathButton.draw(screen, 1185, 130, normalised=False, offset=5)
         
         # Weight buttons
         obstacleButton.draw(screen, 790, 10, normalised=False, offset=5)
@@ -229,7 +234,7 @@ def mainScreen():
                         tailPointer += 1
                 else:
                     startAnimation = datetime.datetime.now()
-                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                    uiGrid.displayCells(discovered, path, timeDelay, start, end, translucency)
                     endAnimation = datetime.datetime.now()
                     timeDelta = endAnimation - startAnimation
                     message = f"DFS ran on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells."
@@ -262,7 +267,7 @@ def mainScreen():
                         tailPointer += 1
                 else:
                     startAnimation = datetime.datetime.now()
-                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                    uiGrid.displayCells(discovered, path, timeDelay, start, end, translucency)
                     endAnimation = datetime.datetime.now()
                     timeDelta = endAnimation - startAnimation
                     message = f"BFS ran on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells."
@@ -294,7 +299,7 @@ def mainScreen():
                         tailPointer += 1
                 else:
                     startAnimation = datetime.datetime.now()
-                    uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                    uiGrid.displayCells(discovered, path, timeDelay, start, end, translucency)
                     endAnimation = datetime.datetime.now()
                     timeDelta = endAnimation - startAnimation
                     message = f"Dijkstra's algorithm ran on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
@@ -331,7 +336,7 @@ def mainScreen():
                             tailPointer += 1
                     else:
                         startAnimation = datetime.datetime.now()
-                        uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                        uiGrid.displayCells(discovered, path, timeDelay, start, end, translucency)
                         endAnimation = datetime.datetime.now()
                         timeDelta = endAnimation - startAnimation
                         message = f"{heuristic} A* algorithm ran on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
@@ -361,7 +366,7 @@ def mainScreen():
                             tailPointer += 1
                     else:
                         startAnimation = datetime.datetime.now()
-                        uiGrid.displayCells(discovered, path, timeDelay, start, end)
+                        uiGrid.displayCells(discovered, path, timeDelay, start, end, translucency)
                         endAnimation = datetime.datetime.now()
                         timeDelta = endAnimation - startAnimation
                         message = f"{heuristic} A* algorithm ran on computer in {time}ms and animated in {timeDelta.seconds}s, visited {len(discovered)} cells, shortest path {len(path)} cells, with cost {cost}."
@@ -456,6 +461,13 @@ def mainScreen():
                 randomWeightButton.reset()
                 backendGrid.randomWeightedGrid()
                 uiGrid.backendToFrontendColour(backendGrid.getArray())
+                
+            if translucencyCyclic.eventOccurence(event):
+                print("Translucency changed.")
+                translucencyCyclic.reset()
+                translucency = translucencyCyclic.getState()
+                
+                
             
             if resetGridButton.eventOccurence(event):
                 print("The grid will now be reset.")
@@ -756,6 +768,8 @@ def entryScreen():
     # Set a screen caption
     pygame.display.set_caption("Pathfinding Visualiser - Welcome")
     
+    
+    
     # Initialise all elements here
     title = Label(0, 0, GREY, "PATHFINDING VISUALISER", 50, BLUE, autoSize=True)
     animate = Button(500, 70, BLUE, "                              ANIMATE\n     Watch the algorithms in action on a grid ", 25, BLACK, "animate")
@@ -770,6 +784,7 @@ def entryScreen():
         title.draw(screen, 0, 0.8)
         animate.draw(screen, 0, 0.12) 
         learn.draw(screen, 0, -0.12)
+        screen.blit(pygame.transform.smoothscale(logo, (400, 400)), (920, 475))
         
         # Event handling
         for event in pygame.event.get():
@@ -800,7 +815,9 @@ if __name__ == "__main__":
     
     SCREEN_WIDTH = 1280
     SCREEN_HEIGHT = 720
+    
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    
     
     # Initialise images
     
@@ -810,6 +827,8 @@ if __name__ == "__main__":
     bfsImage = pygame.image.load(os.path.join(base, "assets", "bfs.png")).convert_alpha()
     dijkstraImage = pygame.image.load(os.path.join(base, "assets", "dijkstra.png")).convert_alpha()
     astarImage = pygame.image.load(os.path.join(base, "assets", "astar.png")).convert_alpha()
+    logo = pygame.image.load(os.path.join(base, "assets", "logo.png")).convert_alpha()
+    favicon = pygame.image.load(os.path.join(base, "assets", "favicon.png")).convert_alpha()
     
     # get text from .txt files for each algorithm
     
@@ -817,6 +836,10 @@ if __name__ == "__main__":
     bfsText = open(os.path.join(base, "algorithmtext", "bfs.txt"), "r", encoding="utf-8").readline()
     dijkstraText = open(os.path.join(base, "algorithmtext", "dijkstra.txt"), "r", encoding="utf-8").readline()
     astarText = open(os.path.join(base, "algorithmtext", "astar.txt"), "r", encoding="utf-8").readline()
+    
+    # Set window icon
+    
+    pygame.display.set_icon(favicon)
 
     # Screen states
     class Screen(Enum):

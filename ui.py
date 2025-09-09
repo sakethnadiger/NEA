@@ -7,18 +7,24 @@ SCREEN_HEIGHT = 720
 BLACK = pygame.Color("#132C33")
 GREY = pygame.Color("#476072")
 BLUE = pygame.Color("#00ADB5")
+YELLOW_TINTED_BLUE = pygame.Color("#33BD91")
 WHITE = pygame.Color("#EEEEEE")
 REFLECTED_WHITE = pygame.Color("#7EB3B8")
+YELLOW_TINTED_WHITE = pygame.Color("#F7F777")
 GREEN = pygame.Color("#06D001")
 RED = pygame.Color("#F93827")
 GRASSGREEN = pygame.Color("#386641")
 REFLECTED_GRASSGREEN = pygame.Color("#1D4D32")
+YELLOW_TINTED_GRASSGREEN = pygame.Color("#8EA619")
 BROWN = pygame.Color("#7B4019")
 REFLECTED_BROWN = pygame.Color("#413013")
+YELLOW_TINTED_BROWN = pygame.Color("#A0980A")
 WATERBLUE = pygame.Color("#4DA8DA")
 REFLECTED_WATERBLUE = pygame.Color("#287EA8")
+YELLOW_TINTED_WATERBLUE = pygame.Color("#A6D46D")
 ORANGE = pygame.Color("#FF7601")
 REFLECTED_ORANGE = pygame.Color("#875900")
+YELLOW_TINTED_ORANGE = pygame.Color("#FFBB01")
 PURPLE = pygame.Color("#511D43")
 DARKBLUE = pygame.Color("#0F828C")
 YELLOW = pygame.Color("#FFD700")
@@ -329,31 +335,49 @@ class UIGrid():
     def getColour(self, x, y):
         return self.grid[y][x].getColour()
     
-    def displayCells(self, discovered : list, path : list, delay,  start, end):
+    def displayCells(self, discovered : list, path : list, delay,  start, end, translucencyToggle):
         # OPTION TO OVERLAY DISCOVERED CELL ON TOP OF EXISTING COLOURS
-        # reflectedColours = {
-        #     (238, 238, 238, 255) : REFLECTED_WHITE,
-        #     (56, 102, 65, 255) : REFLECTED_GRASSGREEN,
-        #     (123, 64, 25, 255) : REFLECTED_BROWN,
-        #     (77, 168, 218, 255) : REFLECTED_WATERBLUE,
-        #     (255, 118, 1, 255) : REFLECTED_ORANGE,
-        #     (71, 96, 114, 255) : DARKBLUE
+        reflectedColours = {
+            (238, 238, 238, 255) : REFLECTED_WHITE,
+            (56, 102, 65, 255) : REFLECTED_GRASSGREEN,
+            (123, 64, 25, 255) : REFLECTED_BROWN,
+            (77, 168, 218, 255) : REFLECTED_WATERBLUE,
+            (255, 118, 1, 255) : REFLECTED_ORANGE,
+            (71, 96, 114, 255) : DARKBLUE
             
-        # }
+        }
+        
+        yellowTintedColours = {
+            (126, 179, 184, 255) : YELLOW_TINTED_WHITE,
+            (29, 77, 50, 255) : YELLOW_TINTED_GRASSGREEN,
+            (65, 48, 19, 255) : YELLOW_TINTED_BROWN,
+            (40, 126, 168, 255) : YELLOW_TINTED_WATERBLUE,
+            (135, 89, 0, 255) : YELLOW_TINTED_ORANGE,
+            (15, 130, 140, 255) : YELLOW_TINTED_BLUE
+        }
         
         for cell in discovered:
             if cell == start or cell == end: 
                 continue
             
-            # colour = tuple(self.getColour(cell[0], cell[1]))
-            # self.changeColour(cell[0], cell[1], reflectedColours[colour])
-            self.changeColour(cell[0], cell[1], DARKBLUE)
+            if translucencyToggle:
+                colour = tuple(self.getColour(cell[0], cell[1]))
+                self.changeColour(cell[0], cell[1], reflectedColours[colour])
+            else:
+                self.changeColour(cell[0], cell[1], DARKBLUE)
             pygame.time.delay(delay)
             pygame.display.update()
         
         for cell in path:
-            if cell == start or cell == end: continue
-            self.changeColour(cell[0], cell[1], YELLOW)
+            if cell == start or cell == end: 
+                continue
+            
+            if translucencyToggle:
+                pathColour = tuple(self.getColour(cell[0], cell[1]))
+                self.changeColour(cell[0], cell[1], yellowTintedColours[pathColour])
+            else:
+                
+                self.changeColour(cell[0], cell[1], YELLOW)
             pygame.time.delay(delay)
             pygame.display.update()
     
