@@ -15,12 +15,13 @@ class Grid:
         # place start and end cells in top left and bottom right cells respectively
         self.gridArray[0][0], self.gridArray[-1][-1] = "S", "E"
     
-    
+    # get the current start coordinates
     def getStart(self):
         npArray = np.array(self.gridArray)
         startPos = tuple(np.argwhere(npArray == "S")[0])
         return (startPos[1], startPos[0])
     
+    # get the current end coordinates
     def getEnd(self):
         npArray = np.array(self.gridArray)
         endPos = tuple(np.argwhere(npArray == "E")[0])
@@ -31,11 +32,13 @@ class Grid:
         if self.gridArray[y][x] not in ["S", "E"] and cellValue in self.weightChoices:
             self.gridArray[y][x] = cellValue
     
+    # change the start coordinates
     def changeStart(self, x, y):
         curStart = self.getStart()
         self.gridArray[y][x] = "S"
         self.gridArray[curStart[1]][curStart[0]] = 0
         
+    # change the end coordinates
     def changeEnd(self, x, y):
         curEnd = self.getEnd()
         self.gridArray[y][x] = "E"

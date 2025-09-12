@@ -1,8 +1,13 @@
+# Import Dependencies
+
 import pygame
 import webbrowser
 import os
 from textwrap import fill
 import datetime
+
+# Import program files
+
 from ui import *
 from grid import Grid
 from dfs import DFS
@@ -11,20 +16,26 @@ from dijkstra import DIJKSTRA
 from astar import *
 from enum import *
 
+# Main animation screen subroutine
 
 def mainScreen():
     clock = pygame.time.Clock()
     
+    # grid size options
     class gridSize(Enum):
         SMALL = auto()
         MEDIUM = auto()
         LARGE = auto()
         
+    # animation speed options
+        
     class Speed(Enum):
         SLOW = auto()
         MEDIUM = auto()
         FAST = auto()
-        
+    
+    # grid insertion values options
+    
     class Insert(Enum):
         START = auto()
         END = auto()
@@ -35,7 +46,8 @@ def mainScreen():
         ROCK = auto()
         LAVA = auto()
         
-        
+    # dictionary that maps the weight to the required colour to be drawn on the grid
+    
     colourCodes = {
             Insert.GRASS : GRASSGREEN,
             Insert.WATER : WATERBLUE,
@@ -47,6 +59,8 @@ def mainScreen():
             Insert.END : RED
     }
     
+    # dictionary that maps the weight to the required cost to be inserted into the backend grid class at the clicked cell
+    
     insertCodes = {
             Insert.GRASS : 2,
             Insert.WATER : 5,
@@ -56,6 +70,8 @@ def mainScreen():
             Insert.OBSTACLE : "#",
     }
     
+    # dictionary that maps the grid size to the dimensions (27 cells down, 63 cells across, 20px cell width and height)
+    
     gridSizeVals = {
         
         gridSize.SMALL : (27, 63, 20), 
@@ -64,7 +80,9 @@ def mainScreen():
             
     }
 
-    # Need to change these values
+    # Need to change these values - COMPLETED
+    # dictionary that maps the speed options to the required time delay during animation
+    
     speedVals = {
         
         Speed.SLOW : 200, 
@@ -73,11 +91,12 @@ def mainScreen():
             
     }
     
+    # initialise the default optional values
+    
     curGridSize = gridSize.SMALL
     curSpeed = Speed.FAST
     curInsert = Insert.OBSTACLE
     translucency = False
-    
     timeDelay = speedVals[curSpeed]
     
     # Initialise backend grid
@@ -85,8 +104,11 @@ def mainScreen():
     # Set a screen caption
     pygame.display.set_caption("Pathfinding Visualiser - Animate")
     
-    # Initialise all elements here
+    # Initialise the UI grid
     uiGrid = UIGrid(gridSizeVals[curGridSize][0], gridSizeVals[curGridSize][1], gridSizeVals[curGridSize][2])
+    
+    # Initialise the terminal and the message queue
+    
     terminal = Label(1165, 70, BLACK, "", 15, WHITE)
     messageQueue = []
     headPointer = 0
@@ -116,10 +138,14 @@ def mainScreen():
     rockButton = Button(90, 30, BROWN, "   ROCK (20)", 15, WHITE, "rock")
     waterButton = Button(90, 30, WATERBLUE, "   WATER (5)", 15, BLACK, "water")
     lavaButton = Button(90, 30, ORANGE, "    LAVA (50)", 15, BLACK, "lava")
-
+    
+    
     running = True
+    
+    # a frame counter is required to limit inadvertent placing of cells immediately after the animation page is opened
     frame_counter = 0
     while running:
+        
         # Draw elements here
         screen.fill(GREY)
         
@@ -127,6 +153,7 @@ def mainScreen():
         uiGrid.draw(screen, 10, 170)
         uiGrid.changeColour(backendGrid.getStart()[0], backendGrid.getStart()[1], GREEN)
         uiGrid.changeColour(backendGrid.getEnd()[0], backendGrid.getEnd()[1], RED)
+        
         
         terminal.draw(screen, 10, 90, normalised=False)
         
@@ -137,6 +164,7 @@ def mainScreen():
                 messageString += f" [{index + 1}] " + messageQueue[index] + "\n"
             terminal.updateText(" " + messageString.strip())
         else:
+            # Default terminal message
             terminal.updateText(" Welcome to the animation screen.\n Add obstacles and weights by left clicking on the grid and remove them by right clicking. (Note: the last weight/obstacle you clicked will be the one added)\n View algorithm traversal in real time (Note: avoid clicking other buttons during animation as this will cause unresponsiveness) and see their associated metrics here.")
         
         # top row button drawing
@@ -169,7 +197,9 @@ def mainScreen():
                 running = False
                 return Screen.QUIT
             
+            # Check if any cells on the grid are clicked
             if uiGrid.eventOccurence(event)[0] and frame_counter > 10:
+                # Check whether it was a left click (1) or right click (3)
                 clicked, button = uiGrid.eventOccurence(event)[1], uiGrid.eventOccurence(event)[2]
                 if button == 3 and clicked != backendGrid.getStart() and clicked != backendGrid.getEnd():
                     uiGrid.changeColour(clicked[0], clicked[1], GREY)
@@ -203,18 +233,20 @@ def mainScreen():
             if back.eventOccurence(event):
                 return Screen.ENTRYSCREEN
             
+            # Cycle through grid sizes if the grid size button is clicked
             if gridSizeCyclic.eventOccurence(event):
                 gridSizeCyclic.reset()
                 curGridSize = gridSizeCyclic.getState()
                 uiGrid.changeDimensions(gridSizeVals[curGridSize][0], gridSizeVals[curGridSize][1], gridSizeVals[curGridSize][2])
                 backendGrid = Grid(gridSizeVals[curGridSize][0], gridSizeVals[curGridSize][1])
             
+            # Cycle through animation speeds if the animation speed button is clicked
             if speedCyclic.eventOccurence(event):
                 speedCyclic.reset()
                 curSpeed = speedCyclic.getState()
                 timeDelay = speedVals[curSpeed]
                 
-            
+            # Run DFS
             if dfsButton.eventOccurence(event):
                 # Need to reset grid to only obstacles and weights
                 uiGrid.backendToFrontendColour(backendGrid.getArray())
@@ -247,7 +279,7 @@ def mainScreen():
                         messageQueue.append(message)
                         tailPointer += 1
                     
-            
+            # Run BFS
             if bfsButton.eventOccurence(event):
                 # Need to reset grid to only obstacles and weights
                 uiGrid.backendToFrontendColour(backendGrid.getArray())
@@ -280,6 +312,7 @@ def mainScreen():
                         messageQueue.append(message)
                         tailPointer += 1
             
+            # Run Dijkstra
             if dijkstraButton.eventOccurence(event):
                 # Need to reset grid to only obstacles and weights
                 uiGrid.backendToFrontendColour(backendGrid.getArray())
@@ -315,6 +348,7 @@ def mainScreen():
             if astarCyclic.eventOccurence(event):
                 astarCyclic.reset()
             
+            # Run A*
             if astarRun.eventOccurence(event):
                 astarRun.reset()
                 heuristic = astarCyclic.getState()
@@ -379,7 +413,7 @@ def mainScreen():
                             messageQueue.append(message)
                             tailPointer += 1
                 
-            
+            # Generate maze
             if mazeButton.eventOccurence(event):
                 print("The maze will now be generated.")
                 mazeButton.reset()
@@ -462,13 +496,13 @@ def mainScreen():
                 backendGrid.randomWeightedGrid()
                 uiGrid.backendToFrontendColour(backendGrid.getArray())
                 
+            # Cycle through translucency - cells are either translucent or opaque
             if translucencyCyclic.eventOccurence(event):
                 print("Translucency changed.")
                 translucencyCyclic.reset()
                 translucency = translucencyCyclic.getState()
                 
                 
-            
             if resetGridButton.eventOccurence(event):
                 print("The grid will now be reset.")
                 resetGridButton.reset()
@@ -488,6 +522,7 @@ def mainScreen():
         
     return
 
+# A* information screen
 def astarScreen():
     clock = pygame.time.Clock()
     
@@ -522,6 +557,7 @@ def astarScreen():
         bfsTab.draw(screen, 327, 90, normalised=False, offset=14)
         dijkstraTab.draw(screen, 645, 90, normalised=False, offset=14)
         astarTab.draw(screen, 964, 90, normalised=False, offset=14)
+        
         # Backdrop
         pygame.draw.rect(screen, BLACK, (10, 170, 1260, 540), 0, 12)
         
@@ -558,6 +594,7 @@ def astarScreen():
     
     return
 
+# Dijkstra information page
 def dijkstraScreen():
     clock = pygame.time.Clock()
     
@@ -627,6 +664,7 @@ def dijkstraScreen():
     
     return
 
+# BFS information page
 def bfsScreen():
     clock = pygame.time.Clock()
     
@@ -692,6 +730,8 @@ def bfsScreen():
     
     return
 
+
+# DFS information page
 def dfsScreen():
     clock = pygame.time.Clock()
     
@@ -760,8 +800,7 @@ def dfsScreen():
     
     return
 
-
-
+# Entry screen
 def entryScreen():
     clock = pygame.time.Clock()
     

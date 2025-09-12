@@ -3,12 +3,15 @@ import heapq
 import math
 import time
 
+
+# manhattan heuristic
 def MANHATTAN(node: tuple, end: tuple):
     D = 3
     dx = abs(node[0] - end[0])
     dy = abs(node[1] - end[1])
     return D * (dx + dy)
 
+# euclidean heuristic
 def EUCLIDEAN(node: tuple, end: tuple):
     D = 2
     dx = abs(node[0] - end[0])
