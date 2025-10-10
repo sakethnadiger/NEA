@@ -101,6 +101,7 @@ def mainScreen():
     
     # Initialise backend grid
     backendGrid = Grid(gridSizeVals[curGridSize][0], gridSizeVals[curGridSize][1])
+    
     # Set a screen caption
     pygame.display.set_caption("Pathfinding Visualiser - Animate")
     

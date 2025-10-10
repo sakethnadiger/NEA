@@ -30,9 +30,11 @@ DARKBLUE = pygame.Color("#0F828C")
 YELLOW = pygame.Color("#FFD700")
 
 def lighten(colour, amount=0.15):
-    r = min(int(colour.r + (255 - colour.r) * amount), 255)
-    g = min(int(colour.g + (255 - colour.g) * amount), 255)
-    b = min(int(colour.b + (255 - colour.b) * amount), 255)
+
+    r = min(int(colour.r * 1.3), 255)
+    g = min(int(colour.g * 1.3), 255)
+    b = min(int(colour.b * 1.3), 255)
+    
     return pygame.Color(r, g, b)
 
 def normalisedToScreen(input_x, input_y, obj_width, obj_height):
